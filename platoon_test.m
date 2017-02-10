@@ -1,7 +1,6 @@
 % Use the following model for each platoon:
 %
-% For one lead vehicle, two following vehicles:
-%
+% (For one lead vehicle, two following vehicles)
 % (all units in meters, meters/second)
 %
 %      [v_l ]    [-1 0 0 0 0][v_l ]   [    u_l(t)   ]   [nv_l ]
@@ -23,7 +22,6 @@
 % * nv_l = lead vehicle nominal velocity
 % * nv_f1 = following vehicle 1 nominal velocity
 % * nv_f2 = following vehicle 2 nominal velocity
-
 
 % Platoon 1
 
@@ -72,7 +70,9 @@ th_des_platoon = 2;
 spring_k_platoon = 0.15;
 
 spring_platoon = ...
-        spring_k_platoon.*[0 0 0 0 0 1 -th_des_platoon 0 0 0 0 0];
+        spring_k_platoon.*[0 0 0 0 0 1 -th_des_platoon 0 0 0 0];
+    
+A_c(6,:) = spring_platoon;
 
 % Define a transformation to the following 3 states
 
@@ -88,3 +88,10 @@ P_sword = [1/3 1/3 1/3 0 0 0 0 0 0 0 0;
 P = pinv(P_sword);
 
 % Abstraction system
+
+F = P_sword*A_c*P;
+G = P_sword*B_c;
+L = P_sword*K_c;
+E = P*F - A_c*P;
+
+% Find an invariant set for 
