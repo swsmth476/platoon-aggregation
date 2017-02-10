@@ -1,4 +1,4 @@
-%% Use the following model for each platoon:
+% Use the following model for each platoon:
 %
 % For one lead vehicle, two following vehicles:
 %
@@ -25,16 +25,16 @@
 % * nv_f2 = following vehicle 2 nominal velocity
 
 
-%% Platoon 1
+% Platoon 1
 
 % unidirectional virtual springs
 time_headway_des1 = 2; %(2s is recommended time headway in normal traffic)
-spring1_gain = 0.15;
+spring1_k = 0.15;
 time_headway_des2 = 2;
-spring2_gain = 0.15;
+spring2_k = 0.15;
 
-spring_f1 = spring1_gain.*[0 -time_headway_des1 0 1 0];
-spring_f2 = spring2_gain.*[0 0 -time_headway_des2 0 1];
+spring_f1 = spring1_k.*[0 -time_headway_des1 0 1 0];
+spring_f2 = spring2_k.*[0 0 -time_headway_des2 0 1];
 
 % nominal velocities
 nv_l = 25;
@@ -57,7 +57,9 @@ K_sub = [nv_l; nv_f1; nv_f2; 0; 0];
 % x0 = [25; 27; 28; 27*3; 28*4];
 % [t,x] = ode45(@(t,x) pltsys(t,x,A1,B1,K1), tspan, x0);
 
-%% Combined system
+% Platoon 2 - identical
+
+% Combined system
 
 % Add - additional state for headway between platoons
 % Add - additional spring between platoons
@@ -67,16 +69,22 @@ B_c = [ [B_sub; zeros(6,1)] [zeros(6,1); B_sub] ];
 K_c = [K_sub; 0; K_sub];
 
 th_des_platoon = 2;
-spring_gain_platoon = 0.15;
+spring_k_platoon = 0.15;
 
-%% Define a transformation to the following 3 states
+spring_platoon = ...
+        spring_k_platoon.*[0 0 0 0 0 1 -th_des_platoon 0 0 0 0 0];
+
+% Define a transformation to the following 3 states
 
 % va_l = average velocity for lead platoon
 % va_f = average (aggregated) velocity for following platoon
 % a_h = distance from lead vehicle of following platoon, to follower2 of
 %       lead platoon
 
-%P_sword = 
+P_sword = [1/3 1/3 1/3 0 0 0 0 0 0 0 0;
+            0 0 0 0 0 0 1/3 1/3 1/3 0 0;
+            0 0 0 0 0 1 0 0 0 0 0];
         
-% P = pinv(P_sword);
-            
+P = pinv(P_sword);
+
+% Abstraction system
