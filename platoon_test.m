@@ -92,6 +92,45 @@ P = pinv(P_sword);
 F = P_sword*A_c*P;
 G = P_sword*B_c;
 L = P_sword*K_c;
-E = P*F - A_c*P;
+error = P*F - A_c*P;
 
-% Find an invariant set for 
+% discretize w/ dt = 0.1s
+
+dt = 0.1;
+F_s = @(s) expm(s*F);
+F_d = F_s(dt);
+G_d = integral(F_s, 0, dt, 'ArrayValued', true) * G;
+L_d = integral(F_s, 0, dt, 'ArrayValued', true) * L;
+
+% define safe set to be 2s < time-headway < 3.5s
+time_headway_lo = 2;
+time_headway_hi = 3.5;
+
+% keep lead/following vehicle in between 22 and 28 m/s
+pl_lo = 22;
+pl_hi = 28;
+pf_lo = 22;
+pf_hi = 28;
+
+Hz = [1 0 0;
+    -1 0 0;
+    0 1 0;
+    0 -1 0;
+    0 -time_headway_hi 1;
+    0 time_headway_lo -1];
+hz = [pl_hi; pl_lo; pf_hi; pf_lo; 0; 0];
+Z = Polyhedron(Hz, hz);
+
+% set input bounds to generic braking/acceleration = [-3, 2] m/s^2
+% do for each platoon
+Hv_sub = [1; -1];
+Hv = blkdiag(Hv_sub, Hv_sub);
+hv_sub = [2; 3];
+hv = [hv_sub; hv_sub];
+
+% find invariant set for two platoons
+ls = LinSys(Hv, hv, F_d, G_d, zeros(3,0), L_d);
+ls.setd(zeros(3,0), zeros(3,1));
+C = ls.ConInvOI(Z);
+
+% invariant set converges - need to double check result

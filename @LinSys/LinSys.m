@@ -34,8 +34,12 @@ classdef LinSys < handle
            D = Polyhedron(s.Hd, s.hd);      %define Polyhedron for D
            v_i = D.V;                       %find vertices v_i of D
 
-           int = Polyhedron(Hxu, ...    %define intersection Polyhedron
-               h - Hdd*v_i(1));
+           if(size(v_i, 1) ~= 0)
+               int = Polyhedron(Hxu, ...    %define intersection Polyhedron
+                   h - Hdd*v_i(1));
+           else
+               int = Polyhedron(Hxu, h);
+           end
            if(size(v_i, 1) > 1)        %intersect through all vertices of D
                for i = 2:size(v_i, 1)
                    int = intersect(int, Polyhedron(Hxu, ...
@@ -51,7 +55,7 @@ classdef LinSys < handle
            C_plus = intersect(G,Pre(s,C));
            while ~isEmptySet(C\C_plus)
                iter = iter + 1;
-               % disp(['Iteration: ' num2str(iter)]);
+               disp(['Iteration: ' num2str(iter)]);
                C = C_plus;
                C_plus = intersect(G,Pre(s,C));
            end
