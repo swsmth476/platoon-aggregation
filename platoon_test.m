@@ -94,6 +94,9 @@ G = P_sword*B_c;
 L = P_sword*K_c;
 error = P*F - A_c*P;
 
+% use Q to cancel out error as much as possible
+Q = B_c\error;
+
 % discretize w/ dt = 0.1s
 
 dt = 0.1;
@@ -107,18 +110,23 @@ time_headway_lo = 2;
 time_headway_hi = 3.5;
 
 % keep lead/following vehicle in between 22 and 28 m/s
-pl_lo = 22;
-pl_hi = 28;
-pf_lo = 22;
-pf_hi = 28;
+pl_lo = 20;
+pl_hi = 30;
+pf_lo = 20;
+pf_hi = 30;
+
+% speed difference bound
+v_delta_max = 2.5;
 
 Hz = [1 0 0;
     -1 0 0;
     0 1 0;
     0 -1 0;
     0 -time_headway_hi 1;
-    0 time_headway_lo -1];
-hz = [pl_hi; pl_lo; pf_hi; pf_lo; 0; 0];
+    0 time_headway_lo -1;
+    1 -1 0;
+    -1 1 0];
+hz = [pl_hi; -pl_lo; pf_hi; -pf_lo; 0; 0; v_delta_max; v_delta_max];
 Z = Polyhedron(Hz, hz);
 
 % set input bounds to generic braking/acceleration = [-3, 2] m/s^2
@@ -134,3 +142,22 @@ ls.setd(zeros(3,0), zeros(3,1));
 C = ls.ConInvOI(Z);
 
 % invariant set converges - need to double check result
+
+% save model parameters for Simulink %
+
+% 3-dimensional abstraction - continuous
+model.F = F;
+model.G = G;
+model.L = L;
+
+% 3-dimensional abstraction - discrete
+model.F_d = F_d;
+model.G_d = G_d;
+model.L_d = L_d;
+
+% 11-dimensional model - continuous
+model.A = A_c;
+model.B = B_c;
+model.K = K_c;
+
+% 
