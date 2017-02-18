@@ -3,36 +3,39 @@
 % (For one lead vehicle, two following vehicles)
 % (all units in meters, meters/second)
 %
-%      [v_l ]    [-1 0 0 0 0][v_l ]   [    u_l(t)   ]   [nv_l ]
-%   d  [v_f1]    [0 -1 0 0 0][v_f1]   [u_f1(h1,v_f1)]   [nv_f1]
-%   -- [v_f2] =  [0 0 -1 0 0][v_f2] + [u_f2(h2,v_f2)] + [nv_f2]   (1)
-%   dt [ h1 ]    [1 -1 0 0 0][ h1 ]   [      0      ]   [  0  ]
-%      [ h2 ]    [0 1 -1 0 0][ h2 ]   [      0      ]   [  0  ]
+%      [xld]    [0  1  0  0  0  0][xld]   [      0      ]   [  0  ]
+%   d  [vld]    [0 -1  0  0  0  0][vld]   [    uld(t)   ]   [nv_ld]
+%   -- [x1 ] =  [0  0  1  0  0  0][x1 ] + [      0      ] + [  0  ]   (1)
+%   dt [v1 ]    [0  0 -1  0  0  0][v1 ]   [  u1(xld,x1) ]   [nv_1 ]
+%      [x2 ]    [0  0  0  1  0  0][x2 ]   [      0      ]   [  0  ]
+%      [v2 ]    [0  0  0 -1  0  0][v2 ]   [  u2(x1,x2)  ]   [nv_2 ]
 %
 % Variables:
 % ----------
-% * v_l = lead vehicle
-% * v_f = following vehicle
-% * h1 = headway1 (dist. from follower1 -> lead, each vehicle pt. mass)
-% * h2 = headway2 (dist. from follower2 -> follower1, each vehicle pt. mass)
-% * u_l(t) = input chosen externally (to accomplish some LTL spec, etc. )
-% * u_f1(h1, v1) = unidirectional spring pushing back follower 1, with the
-%   goal of centering it around a desired time-headway
-% * u_f2(h2, v2) = same for follower 2
+% * xld = lead vehicle position
+% * vld = lead vehicle velocity
+% * x1 = follower vehicle 1 position
+% * v1 = follower vehicle 1 velocity
+% * x2 = follower vehicle 2 position
+% * v2 = follower vehicle 2 velocity
+% * uld(t) = input chosen externally (to accomplish some LTL spec, etc. )
+% * u1(xld,x1) = unidirectional spring pushing back follower 1, with the
+%   goal of centering it around a desired headway
+% * u2(x1,x2) = same for follower 2
 % * nv_l = lead vehicle nominal velocity
-% * nv_f1 = following vehicle 1 nominal velocity
-% * nv_f2 = following vehicle 2 nominal velocity
+% * nv_f1 = follower vehicle 1 nominal velocity
+% * nv_f2 = follower vehicle 2 nominal velocity
 
 % Platoon 1
 
 % unidirectional virtual springs
-time_headway_des1 = 2; %(2s is recommended time headway in normal traffic)
-spring1_k = 0.15;
-time_headway_des2 = 2;
-spring2_k = 0.15;
+d1 = 50; % desired following distance
+d2 = 50;
+k1 = 1; % "spring constant" or gain
+k2 = 1;
 
-spring_f1 = spring1_k.*[0 -time_headway_des1 0 1 0];
-spring_f2 = spring2_k.*[0 0 -time_headway_des2 0 1];
+spring_f1 = k1.*[1 0 -1 0 0 0];
+spring_f2 = k2.*[0 0 1 0 -1 0];
 
 % nominal velocities
 nv_l = 25;
@@ -40,39 +43,33 @@ nv_f1 = 25;
 nv_f2 = 25; % can modify, with effects to following distances
 
 % go without nominal velocity
-A_sub = [-1 0 0 0 0;
-    ([0 -1 0 0 0] + spring_f1);
-    ([0 0 -1 0 0] + spring_f2);
-    1 -1 0 0 0;
-    0 1 -1 0 0];
+A_sub = [0 1 0 0 0 0;
+        0 -1 0 0 0 0;
+        0 0 1 0 0 0;
+        ([0 0 -1 0 0 0] + spring_f1);
+        0 0 0 1 0 0;
+        ([0 0 0 -1 0 0] + spring_f2)];
 
-B_sub = [1; 0; 0; 0; 0];
+B_sub = [0; 1; 0; 0; 0; 0];
 
-K_sub = [nv_l; nv_f1; nv_f2; 0; 0];
-
-% sanity check
-% tspan = [0 60];
-% x0 = [25; 27; 28; 27*3; 28*4];
-% [t,x] = ode45(@(t,x) pltsys(t,x,A1,B1,K1), tspan, x0);
-
+K_sub = [0; nv_l; 0; nv_f1 - k1*d1; 0; nv_f2 - k2*d2]; 
 % Platoon 2 - identical
 
 % Combined system
-
-% Add - additional state for headway between platoons
 % Add - additional spring between platoons
 
-A_c = blkdiag(A_sub, 0, A_sub);
-B_c = [ [B_sub; zeros(6,1)] [zeros(6,1); B_sub] ];
-K_c = [K_sub; 0; K_sub];
+A_c = blkdiag(A_sub, A_sub);
+B_C = blkdiag(B_sun, B_sub);
+K_c = [K_sub; K_sub];
 
-th_des_platoon = 2;
-spring_k_platoon = 0.15;
+d_platoon = 50;
+k_platoon = 1;
 
 spring_platoon = ...
-        spring_k_platoon.*[0 0 0 0 0 1 -th_des_platoon 0 0 0 0];
+        k_platoon.*[0 0 0 0 1 0 -1 0 0 0 0 0];
     
-A_c(6,:) = spring_platoon;
+A_c(8,:) = A_c(8,:) + spring_platoon;
+K_c(8,:) = K_c(8,:) - d_platoon*k_platoon;
 
 % Define a transformation to the following 3 states
 
