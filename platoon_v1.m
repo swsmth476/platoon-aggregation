@@ -125,7 +125,7 @@ L_d = integral(F_s, 0, dt, 'ArrayValued', true) * L;
 
 % define safe set to be 6s < time-headway < 8s
 th_lo = 6;
-th_hi = 38;
+th_hi = 8;
 
 % keep lead/following vehicle in between 20 and 30 m/s
 pl_lo = 20;
@@ -134,17 +134,18 @@ pf_lo = 20;
 pf_hi = 30;
 
 % speed difference bound
-v_delta_max = 2.5;
+v_delta = 2.5;
 
-Hz = [1 0 0;
-    -1 0 0;
-    0 1 0;
-    0 -1 0;
-    0 -time_headway_hi 1;
-    0 time_headway_lo -1;
-    1 -1 0;
-    -1 1 0];
-hz = [pl_hi; -pl_lo; pf_hi; -pf_lo; 0; 0; v_delta_max; v_delta_max];
+Hz = [0 1 0 0;
+      0 0 0 1;
+      0 -1 0 0;
+      0 0 0 -1;
+      1 0 -1 -th_hi;
+      -1 0 1 th_lo;
+      0 1 0 -1;
+      0 -1 0 1];
+hz = [pl_hi; pf_hi; -pl_lo; -pf_lo; 0; 0; v_delta; v_delta];
+
 Z = Polyhedron(Hz, hz);
 
 % set input bounds to generic braking/acceleration = [-3, 2] m/s^2
@@ -155,11 +156,9 @@ hv_sub = [2; 3];
 hv = [hv_sub; hv_sub];
 
 % find invariant set for two platoons
-ls = LinSys(Hv, hv, F_d, G_d, zeros(3,0), L_d);
-ls.setd(zeros(3,0), zeros(3,1));
+ls = LinSys(Hv, hv, F_d, G_d, zeros(4,0), L_d);
+ls.setd(zeros(4,0), zeros(4,1));
 C = ls.ConInvOI(Z);
-
-% invariant set converges - need to double check result
 
 % save model parameters for Simulink %
 

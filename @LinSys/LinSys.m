@@ -1,13 +1,13 @@
 classdef LinSys < handle
    properties (SetAccess=protected)
        Hu;
-       hu;   %Input constraints
+       hu;   % Input constraints
        Hd;
-       hd;   %Disturbance constraints
+       hd;   % Disturbance constraints
        A;
        B;
        E;
-       K;     %System dynamics
+       K;     % System dynamics
    end
    methods
        function s = LinSys(Hu, hu, A, B, E, K)
@@ -23,7 +23,7 @@ classdef LinSys < handle
            s.hd = hd;
        end
        function x_0 = Pre(s,C)
-           %define matrices s.t. the A, B ineq. matrices for polyhedron s
+           % define matrices s.t. the A, B ineq. matrices for polyhedron s
            % are A = [Hxu Hdd] and B = h
            
            Hxu = [C.A*s.A C.A*s.B; ...
@@ -31,16 +31,16 @@ classdef LinSys < handle
                zeros(size(s.Hd,1),size([C.A*s.A C.A*s.B],2))];
            Hdd = [C.A*s.E; zeros(size(s.hu,1),size(s.Hd,2)); s.Hd];
            h = [C.b - C.A*s.K; s.hu; s.hd];
-           D = Polyhedron(s.Hd, s.hd);      %define Polyhedron for D
-           v_i = D.V;                       %find vertices v_i of D
+           D = Polyhedron(s.Hd, s.hd);      % define Polyhedron for D
+           v_i = D.V;                       % find vertices v_i of D
 
            if(size(v_i, 1) ~= 0)
-               int = Polyhedron(Hxu, ...    %define intersection Polyhedron
+               int = Polyhedron(Hxu, ...    % define intersection Polyhedron
                    h - Hdd*v_i(1));
            else
                int = Polyhedron(Hxu, h);
            end
-           if(size(v_i, 1) > 1)        %intersect through all vertices of D
+           if(size(v_i, 1) > 1)        % intersect through all vertices of D
                for i = 2:size(v_i, 1)
                    int = intersect(int, Polyhedron(Hxu, ...
                        h - Hdd*v_i(i)));
