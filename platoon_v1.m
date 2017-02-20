@@ -4,7 +4,7 @@
 % (all units in meters, meters/second)
 %
 %      [xld]    [0  1  0  0  0  0][xld]   [      0      ]   [  0  ]
-%   d  [vld]    [0 -1  0  0  0  0][vld]   [    uld(t)   ]   [nv_ld]
+%   d  [vld]    [0  0  0  0  0  0][vld]   [    uld(t)   ]   [  0  ]
 %   -- [x1 ] =  [0  0  1  0  0  0][x1 ] + [      0      ] + [  0  ]   (1)
 %   dt [v1 ]    [0  0 -1  0  0  0][v1 ]   [  u1(xld,x1) ]   [nv_1 ]
 %      [x2 ]    [0  0  0  1  0  0][x2 ]   [      0      ]   [  0  ]
@@ -44,15 +44,16 @@ nv_f2 = 25; % can modify, with effects to following distances
 
 % go without nominal velocity
 A_sub = [0 1 0 0 0 0;
-        0 -1 0 0 0 0;
-        0 0 1 0 0 0;
-        ([0 0 -1 0 0 0] + spring_f1);
+        0 0 0 0 0 0;
         0 0 0 1 0 0;
-        ([0 0 0 -1 0 0] + spring_f2)];
+        k1 0 -k1 -1 0 0;
+        0 0 0 0 0 1;
+        0 0 k2 0 -k2 -1];
 
 B_sub = [0; 1; 0; 0; 0; 0];
 
-K_sub = [0; nv_l; 0; nv_f1 - k1*d1; 0; nv_f2 - k2*d2]; 
+K_sub = [0; nv_l; 0; nv_f1 - k1*d1; 0; nv_f2 - k2*d2];
+
 % Platoon 2 - identical
 
 % Combined system
@@ -71,18 +72,12 @@ spring_platoon = ...
 A_c(8,:) = A_c(8,:) + spring_platoon;
 K_c(8,:) = K_c(8,:) - d_platoon*k_platoon;
 
-% Define a transformation to the following 3 states
+% Define a transformation to the following 4 states:
 
-% va_l = average velocity for lead platoon
-% va_f = average (aggregated) velocity for following platoon
-% a_h = distance from lead vehicle of following platoon, to follower2 of
-%       lead platoon
-
-P_sword = [1/3 1/3 1/3 0 0 0 0 0 0 0 0;
-            0 0 0 0 0 0 1/3 1/3 1/3 0 0;
-            0 0 0 0 0 1 0 0 0 0 0];
-        
-P = pinv(P_sword);
+% x_l1 = lead platoon position
+% v_l1 = lead platoon velocity
+% x_l2 = following platoon position
+% v_l2 = following platoon velocity
 
 % Abstraction system
 
