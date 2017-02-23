@@ -4,8 +4,8 @@ function dx = NLPlatoonAbs(t,x,v0,dh,k)
 dx = zeros(4,1);
 
 dx(1) = x(2);
-dx(2) = -x(2) + v0;
+dx(2) = -x(2) + v0 + u1(t);
 dx(3) = x(4);
-dx(4) = -x(4) + v0 + g_fn(x(1) - x(3),dh,k);
+dx(4) = -x(4) + v0 + g_fn(x(1) - x(3),dh,k) + u2(t);
 
 end

@@ -8,17 +8,6 @@
 
 % let g(x) = unidirectional spring = log(x)
 
-% nominal velocities
-v0L1 = 32; % lead vehicle 1 nominal velocity (similarly named for others)
-v0L2 = 30; 
-v01 = 25; % follower vehicle 1 nominal velocity (same for others)
-v02 = 25;
-v03 = 25;
-v04 = 25;
-
-dh = 50; % desired headway
-k = 5; % gain for spring
-
 x0 = [300; 0; 250; 0; 200; 0; 150; 0; 100; 0; 50; 0];
 z0 = [300; 0; 150; 0]; % initial conditions
 
