@@ -19,7 +19,7 @@ omega = [0;
         0;
         -g_inv(v0 - v01,dh,k);
         0;
-        -g_inv(v0 - v01,dh,k)-g_inv(v0 - v02,dh,k)];
+        -g_inv(v0 - v01,dh,k) - g_inv(v0 - v02,dh,k)];
     
 x = blkdiag(P,P)*z + [omega; omega];
 
