@@ -1,7 +1,7 @@
-function distance = g_inv(y, desired_headway, gain)
+function d = g_inv(y, dh, k)
 % inverse map of g(x) = y
 % (see g_fn.m)
 
-distance = desired_headway*exp(y/gain);
+d = dh*exp(y/k);
 
 end
