@@ -1,7 +1,7 @@
-function [ output_args ] = u2( input_args )
-%U2 Summary of this function goes here
-%   Detailed explanation goes here
+function input2 = u2(t)
+% input for lead vehicle 2
 
+
+input2 = 7*heaviside(t-30);
 
 end
-

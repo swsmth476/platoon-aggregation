@@ -1,5 +1,5 @@
 function dx = NLPlatoonFull(t, x, p)
-% dynamics for a nonlinear platoon model
+% dynamics for the nonlinear platoon model
 
 dx = zeros(12,1);
 
