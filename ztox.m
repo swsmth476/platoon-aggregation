@@ -1,11 +1,5 @@
-function x = ztox(z,p)
+function x = ztox(z,p,t)
 % map from abstraction state z to concrete state x
-
-% dh = desired headway
-% k = spring gain
-
-dh = 50;
-k = 5;
 
 P_sub = [1 0;
     0 1;
