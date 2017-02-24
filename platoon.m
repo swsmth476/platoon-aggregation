@@ -14,7 +14,12 @@ z0 = [300; 0; 150; 0]; % initial conditions
 parameters = set_parameters; % set parameters for platoon
 
 % simulate concrete platoon
-[t1,y] = ode45(@(t1,y) NLPlatoonFull(t1,y,parameters), [0, 60], x0);
+[tx,x] = ode45(@(t1,x) NLPlatoonFull(t1,x,parameters), [0, 60], x0);
+x = x';
 
 % simulate abstraction platoon
-[t2,w] = ode45(@(t2,w) NLPlatoonAbs(t2,w,parameters), [0, 60], z0);
+[tz,z] = ode45(@(t2,z) NLPlatoonAbs(t2,z,parameters), [0, 60], z0);
+z = z';
+
+% get error(t) = norm(x(t) - (Pz(t) + omega))
+[e, xl] = get_error(z,tz,x,tx,parameters);

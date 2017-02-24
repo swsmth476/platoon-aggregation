@@ -1,4 +1,4 @@
-function x = ztox(z, v0, v01, v02)
+function x = ztox(z,p)
 % map from abstraction state z to concrete state x
 
 % dh = desired headway
@@ -7,22 +7,30 @@ function x = ztox(z, v0, v01, v02)
 dh = 50;
 k = 5;
 
-P = [1 0;
+P_sub = [1 0;
     0 1;
     1 0;
     0 1;
     1 0;
     0 1];
 
+P = blkdiag(P_sub,P_sub);
+
 omega = [0;
         0;
         0;
-        -g_inv(v0 - v01,dh,k);
+        -g_inv(p.v0L1 - p.v01,p.dh,p.k);
         0;
-        -g_inv(v0 - v01,dh,k) - g_inv(v0 - v02,dh,k)];
+        -g_inv(p.v0L1 - p.v01,p.dh,p.k) - g_inv(p.v0L1 - p.v02,p.dh,p.k);
+        0;
+        0;
+        0;
+        -g_inv(p.v0L2 - p.v03,p.dh,p.k);
+        0;
+        g_inv(p.v0L2 - p.v03,p.dh,p.k) - g_inv(p.v0L2 - p.v04,p.dh,p.k)];
     
-x = repmat([omega; omega], 1, size(z,2)); % offset
+x = repmat(omega, 1, size(z,2)); % offset
 
-x = x + blkdiag(P,P)*z; % lift z coordinates into x-space
+x = x + P*z; % lift z coordinates into x-space
 
 end
