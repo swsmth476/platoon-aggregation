@@ -4,8 +4,8 @@ function parameters = set_parameters
 % nominal velocities
 parameters.v0L1 = 30; % lead vehicle 1 (similarly named for others)
 parameters.v0L2 = 25; 
-parameters.v01 = 25; % ^follower vehicle 1 (same for others)
-parameters.v02 = 25;
+parameters.v01 = 30; % ^follower vehicle 1 (same for others)
+parameters.v02 = 30;
 parameters.v03 = 25;
 parameters.v04 = 25;
 

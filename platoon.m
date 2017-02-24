@@ -21,5 +21,6 @@ x = x';
 [tz,z] = ode45(@(t2,z) NLPlatoonAbs(t2,z,parameters), [0, 60], z0);
 z = z';
 
-% get error(t) = norm(x(t) - (Pz(t) + omega))
+% get e(t) = norm(x(t) - (Pz(t) + omega))
+% e is the distance from x to the invariant manifold
 [e, xl] = get_error(z,tz,x,tx,parameters);
