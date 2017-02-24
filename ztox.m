@@ -21,6 +21,8 @@ omega = [0;
         0;
         -g_inv(v0 - v01,dh,k) - g_inv(v0 - v02,dh,k)];
     
-x = blkdiag(P,P)*z + [omega; omega];
+x = repmat([omega; omega], 1, size(z,2)); % offset
+
+x = x + blkdiag(P,P)*z; % lift z coordinates into x-space
 
 end
