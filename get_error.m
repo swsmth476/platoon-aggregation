@@ -1,7 +1,5 @@
 function [ output_args ] = get_error( input_args )
-%GET_ERROR Summary of this function goes here
-%   Detailed explanation goes here
-
+% compute error between abstraction and concrete trajectories
 
 end
 
