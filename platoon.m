@@ -55,7 +55,7 @@ plot(tx,input_u2,tx,input_v2);
 title('u_2(t) & v_2(t)');
 xlabel('Time (s)');
 ylabel('Acceleration (m/s^2)');
-legend('v_2(t)','u_2(t)');
+legend('u_2(t)','v_2(t)');
 
 subplot(2,2,4);
 plot(tx,e);
