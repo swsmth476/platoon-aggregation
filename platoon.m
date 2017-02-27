@@ -25,15 +25,22 @@ z = z';
 % e is the distance from x to the invariant manifold
 [e, xl] = get_error(z,tz,x,tx,parameters);
 
+input2 = zeros(size(tx));
+
+% post-compute inputs (fix this later)
+for i = 1:length(tx)
+    input2(i) = u2(tx(i),x(5,i) - x(7,i), parameters);
+end
+
 % plot results
 subplot(2,2,1);
 plot(tx,x);
 
 subplot(2,2,2);
-plot(tz,z);
+plot(tz,xl);
 
 subplot(2,2,3);
-plot(tz,xl);
+plot(tx,input2,tx,u1(tx));
 
 subplot(2,2,4);
 plot(tx,e);
