@@ -14,13 +14,26 @@ z0 = [300; 0; 150; 0]; % initial conditions
 parameters = set_parameters; % set parameters for platoon
 
 % simulate concrete platoon
-[tx,x] = ode45(@(t1,x) NLPlatoonFull(t1,x,parameters), [0, 60], x0);
+[tx,x] = ode45(@(t1,x) NLPlatoonFull(t1,x,parameters), [0, 120], x0);
 x = x';
 
 % simulate abstraction platoon
-[tz,z] = ode45(@(t2,z) NLPlatoonAbs(t2,z,parameters), [0, 60], z0);
+[tz,z] = ode45(@(t2,z) NLPlatoonAbs(t2,z,parameters), [0, 120], z0);
 z = z';
 
 % get e(t) = norm(x(t) - (Pz(t) + omega))
 % e is the distance from x to the invariant manifold
 [e, xl] = get_error(z,tz,x,tx,parameters);
+
+% plot results
+subplot(2,2,1);
+plot(tx,x);
+
+subplot(2,2,2);
+plot(tz,z);
+
+subplot(2,2,3);
+plot(tz,xl);
+
+subplot(2,2,4);
+plot(tx,e);
