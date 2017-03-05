@@ -54,6 +54,15 @@ par.D = par.A*par.P - par.P*par.F;
 par.E = par.A*par.omega + par.theta - par.P*par.theta_hat;
 
 % get ISS lyapunov matrices %
-
+% output we will use is velocity of each vehicle and intervehicle headways
+C_sub = [0 1 0 0 0 0;
+        1 0 -1 0 0 0;
+        0 0 0 1 0 0;
+        0 0 1 0 -1 0;
+        0 0 0 0 0 1];
+par.C = blkdiag(C_sub);
+M_bar = sdpvar(12,12);
+K_bar = sdpvar(12,12);
+F = [
 
 end
