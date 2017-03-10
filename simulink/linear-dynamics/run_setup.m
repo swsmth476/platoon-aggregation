@@ -79,4 +79,8 @@ assert(min(eig(mdl.M - mdl.C'*mdl.C)) >= 0)
 assert(min(eig((mdl.A + mdl.B*mdl.K)'*mdl.M ...
     + mdl.M*(mdl.A + mdl.B*mdl.K) + 2*lambda*mdl.M)) <= 0)
 
+% initial states %
+mdl.x0 = [300; 25; 250; 25; 200; 25; 150; 25; 100; 25; 50; 25];
+mdl.z0 = [300; 25; 150; 25]; % initial conditions
+
 end

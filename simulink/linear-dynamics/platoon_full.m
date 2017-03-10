@@ -45,7 +45,7 @@ function setup(block)
 function InitConditions(block)
 
   %% Initialize Dwork
-  block.ContStates.Data = % insert initial state;
+  block.ContStates.Data = mdl.x0;
   
 %endfunction
 
