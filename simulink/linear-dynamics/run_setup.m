@@ -1,5 +1,5 @@
 function mdl = run_setup
-% mdl = struct of necessary model parameters for simulation
+% mdl = struct of model parameters for simulation
 
 % nominal velocities
 mdl.v0L1 = 25;
@@ -69,11 +69,14 @@ mdl.E = mdl.A*mdl.omega + mdl.theta - mdl.P*mdl.theta_hat;
     
 % linear state feedback, Lyapunov %
 
-desired_decay_rate = 1.5; % decay rate that we want to achieve
+lambda = .2; % decay rate that we want to achieve
 
 % find Lyapunov matrix M and linear feedback K to achieve this decay
-[mdl.M, mdl.K] = decay_rate(mdl.A, mdl.B, mdl.C, desired_decay_rate);
+[mdl.M, mdl.K] = decay_rate(mdl.A, mdl.B, mdl.C, lambda);
 
 % sanity check
+assert(min(eig(mdl.M - mdl.C'*mdl.C)) >= 0)
+assert(min(eig((mdl.A + mdl.B*mdl.K)'*mdl.M ...
+    + mdl.M*(mdl.A + mdl.B*mdl.K) + 2*lambda*mdl.M)) <= 0)
 
 end

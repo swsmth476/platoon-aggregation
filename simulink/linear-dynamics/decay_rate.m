@@ -15,7 +15,7 @@ k = size(C,1);
 G = [M_bar M_bar*C';
     C*M_bar eye(k)];
 F = [G >= 0];
-F = [F, M_bar*A' + A*M_bar + K_bar'*B' + B*K_bar <= 2*rate*M_bar];
+F = [F, M_bar*A' + A*M_bar + K_bar'*B' + B*K_bar <= -2*rate*M_bar];
 optimize(F, [], sdpsettings('solver','mosek'));
 
 M = inv(value(M_bar));
