@@ -1,4 +1,4 @@
-function msfcn_limintm(block)
+function platoon_full(block)
 
   setup(block);
   
@@ -10,7 +10,7 @@ function setup(block)
   block.NumDialogPrms = 0;
 
   %% Register number of input and output ports
-  block.NumInputPorts  = 1;
+  block.NumInputPorts  = 2;
   block.NumOutputPorts = 1;
 
   %% Setup functional port properties to dynamically
@@ -18,6 +18,9 @@ function setup(block)
   block.SetPreCompInpPortInfoToDynamic;
   block.SetPreCompOutPortInfoToDynamic;
  
+  block.InputPort(1).Dimensions        = 12;
+  block.InputPort(1).DirectFeedthrough = false;
+  
   block.InputPort(1).Dimensions        = 2;
   block.InputPort(1).DirectFeedthrough = false;
   
@@ -53,13 +56,13 @@ function Output(block)
 %endfunction
 
 function Derivative(block)
-    global parameters;
+    global mdl;
 
-    % full platoon dynamics (12 states)
+    % full platoon dynamics (12 states) %
     
     x = block.InputPort(1).Data;
     u = block.InputPort(2).Data;
     
-    block.Derivatives.Data(1) = 
+    block.Derivatives.Data = mdl.A*x + mdl.B*u;
   
 %endfunction
