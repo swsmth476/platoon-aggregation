@@ -63,6 +63,6 @@ function Derivative(block)
     x = block.InputPort(1).Data;
     u = block.InputPort(2).Data;
     
-    block.Derivatives.Data = mdl.A*x + mdl.B*u;
+    block.Derivatives.Data = mdl.A*x + mdl.B*u + mdl.theta;
   
 %endfunction
