@@ -1,4 +1,4 @@
-function platoon_abs(block)
+function platoon_ref(block)
 
   setup(block);
   
@@ -45,7 +45,7 @@ function setup(block)
 function InitConditions(block)
 
   %% Initialize Dwork
-  block.ContStates.Data = % insert initial state;
+  block.ContStates.Data = mdl.z0;
   
 %endfunction
 
@@ -58,7 +58,7 @@ function Output(block)
 function Derivative(block)
     global mdl;
 
-    % full platoon dynamics (12 states) %
+    % full platoon dynamics (4 states) %
     
     z = block.InputPort(1).Data;
     v = block.InputPort(2).Data;
