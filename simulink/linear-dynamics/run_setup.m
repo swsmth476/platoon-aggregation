@@ -21,21 +21,34 @@ A_sub = [0 1 0 0 0 0;
 A = blkdiag(A_sub, A_sub);
 A(8,:) = A(8,:) + [0 0 0 0 mdl.k 0 -mdl.k 0 0 0 0 0]; % add spring between platoons
 mdl.A = A;
+
 B_sub = [0; 1; 0; 0; 0; 0];
 mdl.B = blkdiag(B_sub, B_sub); % control input
-mdl.theta = [0; mdl.v0L1; 0; mdl.v01 - mdl.k*mdl.dh; 0; mdl.v02 - mdl.k*mdl.dh; ...
-          0; mdl.v0L2 - mdl.k*mdl.dh; 0; mdl.v03 - mdl.k*mdl.dh; 0; mdl.v04 - mdl.k*mdl.dh];
-        % constant dynamics
+
+mdl.theta = [0; mdl.v0L1; 0; mdl.v01 - mdl.k*mdl.dh; ...
+             0; mdl.v02 - mdl.k*mdl.dh; 0; mdl.v0L2 - mdl.k*mdl.dh; ...
+             0; mdl.v03 - mdl.k*mdl.dh; 0; mdl.v04 - mdl.k*mdl.dh]; % constant dynamics
+
+C_sub = [0 1 0 0 0 0;
+        1 0 -1 0 0 0;
+        0 0 0 1 0 0;
+        0 0 1 0 -1 0;
+        0 0 0 0 0 1];
+mdl.C = [C_sub zeros(size(C_sub));
+        0 0 0 0 1 0 -1 0 0 0 0 0;
+        zeros(size(C_sub)) C_sub]; % outputs are velocities, headways
 
 % reference system dynamics %
 mdl.F = [0 1 0 0;
-    0 -1 0 0;
-    0 0 0 1;
-    0 0 0 -1]; % autonomous dynamics
+        0 -1 0 0;
+        0 0 0 1;
+        0 0 0 -1]; % autonomous dynamics
+
 mdl.G = [0 0;
         1 0;
         0 0
         0 1]; % control input
+    
 mdl.theta_hat = [0; mdl.v0L1; 0; mdl.v0L2]; % constant dynamics
 
 % coordinate transformation %
@@ -46,29 +59,21 @@ P_sub = [1 0;
         1 0;
         0 1];
 mdl.P = blkdiag(P_sub, P_sub); % linear part
+
 omega_sub = [0; 0; -mdl.dh; 0; -2*mdl.dh; 0];
 mdl.omega = [omega_sub; omega_sub]; % constant part
 
 % invariant manifold "error" parameters %
 mdl.D = mdl.A*mdl.P - mdl.P*mdl.F;
 mdl.E = mdl.A*mdl.omega + mdl.theta - mdl.P*mdl.theta_hat;
+    
+% linear state feedback, Lyapunov %
 
-% get ISS lyapunov matrices %
-% output we will use is velocity of each vehicle and intervehicle headways
-% C_sub = [0 1 0 0 0 0;
-%         1 0 -1 0 0 0;
-%         0 0 0 1 0 0;
-%         0 0 1 0 -1 0;
-%         0 0 0 0 0 1];
-% mdl.C = [C_sub zeros(5,6);
-%         0 0 0 0 1 0 -1 0 0 0 0 0;
-%         zeros(5,6) C_sub];
-M = sdpvar(12,12,'symmetric');
-K = sdpvar(2,12);
-F = [M >= 0];
-F = [F, (mdl.A + mdl.B*K)'*M + M*(mdl.A+mdl.B*K) <= 0];
-optimize(F, [], sdpsettings('solver','penlab'));
-mdl.M = value(M);
-mdl.K = value(K);
+desired_decay_rate = 1.5; % decay rate that we want to achieve
+
+% find Lyapunov matrix M and linear feedback K to achieve this decay
+[mdl.M, mdl.K] = decay_rate(mdl.A, mdl.B, mdl.C, desired_decay_rate);
+
+% sanity check
 
 end
