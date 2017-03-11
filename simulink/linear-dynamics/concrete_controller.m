@@ -18,13 +18,13 @@ function setup(block)
   block.InputPort(1).Dimensions        = 12;
   block.InputPort(1).DirectFeedthrough = false;
   
-  block.InputPort(1).Dimensions        = 4;
+  block.InputPort(2).Dimensions        = 4;
   block.InputPort(2).DirectFeedthrough = false;
   
-  block.OutputPort(1).Dimensions       = 2;
+  %   block.InputPort(2).Dimensions        = 2;
+  %   block.InputPort(2).DirectFeedthrough = true;
   
-%   block.InputPort(1).Dimensions        = 2;
-%   block.InputPort(3).DirectFeedthrough = true;
+  block.OutputPort(1).Dimensions       = 2;
   
   %% Set block sample time to inherited
   block.SampleTimes = [-1 0];

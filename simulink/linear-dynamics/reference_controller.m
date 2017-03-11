@@ -44,5 +44,7 @@ function Output(block)
   global mdl;
 
   % controller for reference model %
+  
+  
 
 %endfunction

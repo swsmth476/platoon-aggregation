@@ -51,6 +51,13 @@ mdl.G = [0 0;
     
 mdl.theta_hat = [0; mdl.v0L1; 0; mdl.v0L2]; % constant dynamics
 
+% get discretized reference dynamics for MPC %
+dt = 0.1; % timestep
+mdl.Fd = expm(mdl.F*dt);
+F_s = @(s) expm(s*mdl.F);
+mdl.Gd = integral(F_s, 0, dt, 'ArrayValued', true) * mdl.G;
+mdl.theta_hatd = integral(F_s, 0, dt, 'ArrayValued', true) * mdl.theta_hat;
+
 % coordinate transformation %
 P_sub = [1 0;
         0 1;
@@ -82,5 +89,11 @@ assert(min(eig((mdl.A + mdl.B*mdl.K)'*mdl.M ...
 % initial states %
 mdl.x0 = [300; 25; 250; 25; 200; 25; 150; 25; 100; 25; 50; 25];
 mdl.z0 = [300; 25; 150; 25]; % initial conditions
+
+% goal state for reference output %
+mdl.H = [0 1 0 0;
+        1 0 -1 0;
+        0 0 0 1];
+mdl.wg = [25; 150; 25];
 
 end
