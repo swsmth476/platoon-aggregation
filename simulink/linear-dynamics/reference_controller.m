@@ -36,7 +36,7 @@ function setup(block)
 %endfunction
 
 function InitConditions(block) 
-  block.OutputPort(1).Data = 0;
+  block.OutputPort(1).Data = [0; 0];
   
 %endfunction
 
@@ -47,12 +47,12 @@ function Output(block)
   
   z = block.InputPort(1).Data;
   
-  Q = eye(4); % quadratic state cost
-  R = .1*eye(2); % quadratic input cost
+  Q = eye(3); % quadratic state cost
+  R = eye(2); % quadratic input cost
   
   % construct standard qp weights
-  H = mdl.Gd'*mdl.C'*Q*mdl.C*mdl.Gd + R;
-  f = ((mdl.Fd*z + mdl.theta_hatd)'*mdl.C' - mdl.wg')*Q*mdl.C;
+  H = mdl.Gd'*mdl.H'*Q*mdl.H*mdl.Gd + R;
+  f = ((mdl.Fd*z + mdl.theta_hatd)'*mdl.H' - mdl.wg')*Q*mdl.H*mdl.G;
   
   % input bounds
   v_upper = 2;
@@ -67,8 +67,8 @@ function Output(block)
       -1 0;
       0 1;
       0 -1;
-      d*mdl.Gd;
-      -d*mdl.Gd];
+      mdl.d*mdl.Gd;
+      -mdl.d*mdl.Gd];
       
   b = [v_upper;
       -v_lower;

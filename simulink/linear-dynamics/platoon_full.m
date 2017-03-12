@@ -21,8 +21,8 @@ function setup(block)
   block.InputPort(1).Dimensions        = 12;
   block.InputPort(1).DirectFeedthrough = false;
   
-  block.InputPort(1).Dimensions        = 2;
-  block.InputPort(1).DirectFeedthrough = false;
+  block.InputPort(2).Dimensions        = 2;
+  block.InputPort(2).DirectFeedthrough = false;
   
   block.OutputPort(1).Dimensions       = 12;
   
@@ -45,6 +45,8 @@ function setup(block)
 function InitConditions(block)
 
   %% Initialize Dwork
+  global mdl;
+  
   block.ContStates.Data = mdl.x0;
   
 %endfunction

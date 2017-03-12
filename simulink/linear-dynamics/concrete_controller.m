@@ -42,7 +42,7 @@ function setup(block)
 %endfunction
 
 function InitConditions(block) 
-  block.OutputPort(1).Data = 0;
+  block.OutputPort(1).Data = [0; 0];
   
 %endfunction
 
@@ -55,6 +55,6 @@ function Output(block)
   
   % possibly change later to include R & Q terms as in Girardi paper
 
-  block.OutputPort(1).Data = mdl.K*(mdl.P*z + mdl.omega - x);
+  block.OutputPort(1).Data = -mdl.K*(mdl.P*z + mdl.omega - x);
   
 %endfunction

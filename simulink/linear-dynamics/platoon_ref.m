@@ -18,19 +18,19 @@ function setup(block)
   block.SetPreCompInpPortInfoToDynamic;
   block.SetPreCompOutPortInfoToDynamic;
  
-  block.InputPort(1).Dimensions        = 12;
+  block.InputPort(1).Dimensions        = 4;
   block.InputPort(1).DirectFeedthrough = false;
   
-  block.InputPort(1).Dimensions        = 2;
-  block.InputPort(1).DirectFeedthrough = false;
+  block.InputPort(2).Dimensions        = 2;
+  block.InputPort(2).DirectFeedthrough = false;
   
-  block.OutputPort(1).Dimensions       = 12;
+  block.OutputPort(1).Dimensions       = 4;
   
   %% Set block sample time to continuous
   block.SampleTimes = [0 0];
   
   %% Setup Dwork
-  block.NumContStates = 12;
+  block.NumContStates = 4;
 
   %% Set the block simStateCompliance to default (i.e., same as a built-in block)
   block.SimStateCompliance = 'DefaultSimState';
@@ -45,6 +45,8 @@ function setup(block)
 function InitConditions(block)
 
   %% Initialize Dwork
+  global mdl;
+  
   block.ContStates.Data = mdl.z0;
   
 %endfunction
@@ -58,7 +60,7 @@ function Output(block)
 function Derivative(block)
     global mdl;
 
-    % full platoon dynamics (4 states) %
+    % reference platoon dynamics (4 states) %
     
     z = block.InputPort(1).Data;
     v = block.InputPort(2).Data;

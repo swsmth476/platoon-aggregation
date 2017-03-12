@@ -51,6 +51,10 @@ mdl.G = [0 0;
     
 mdl.theta_hat = [0; mdl.v0L1; 0; mdl.v0L2]; % constant dynamics
 
+mdl.H = [0 1 0 0;
+        1 0 -1 0;
+        0 0 0 1];
+
 % get discretized reference dynamics for MPC %
 dt = 0.1; % timestep
 mdl.Fd = expm(mdl.F*dt);
@@ -89,8 +93,8 @@ assert(min(eig((mdl.A + mdl.B*mdl.K)'*mdl.M ...
     + mdl.M*(mdl.A + mdl.B*mdl.K) + 2*lambda*mdl.M)) <= 0)
 
 % initial states %
-mdl.x0 = [300; 25; 250; 25; 200; 25; 150; 25; 100; 25; 50; 25];
-mdl.z0 = [300; 25; 150; 25]; % initial conditions
+mdl.x0 = [300; 22; 245; 22; 190; 22; 135; 24; 80; 23; 25; 22];
+mdl.z0 = [300; 22; 135; 24]; % initial conditions
 
 % goal state for reference output %
 mdl.H = [0 1 0 0;
