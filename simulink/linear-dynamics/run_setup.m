@@ -72,7 +72,9 @@ mdl.omega = [omega_sub; omega_sub]; % constant part
 
 % invariant manifold "error" parameters %
 mdl.D = mdl.A*mdl.P - mdl.P*mdl.F;
+mdl.d = mdl.D(8,:);
 mdl.E = mdl.A*mdl.omega + mdl.theta - mdl.P*mdl.theta_hat;
+mdl.e = mdl.E(8);
     
 % linear state feedback, Lyapunov %
 

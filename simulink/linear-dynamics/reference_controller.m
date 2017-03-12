@@ -43,8 +43,46 @@ function InitConditions(block)
 function Output(block)
   global mdl;
 
-  % controller for reference model %
+  % model predictive controller for reference model %
   
+  z = block.InputPort(1).Data;
   
+  Q = eye(4); % quadratic state cost
+  R = .1*eye(2); % quadratic input cost
+  
+  % construct standard qp weights
+  H = mdl.Gd'*mdl.C'*Q*mdl.C*mdl.Gd + R;
+  f = ((mdl.Fd*z + mdl.theta_hatd)'*mdl.C' - mdl.wg')*Q*mdl.C;
+  
+  % input bounds
+  v_upper = 2;
+  v_lower = -3;
+  
+  % headway error tolerance
+  % (contributes to relative error between concrete/reference systems)
+  h_delta = 15;
+  
+  % construct qp constraints
+  A = [1 0;
+      -1 0;
+      0 1;
+      0 -1;
+      d*mdl.Gd;
+      -d*mdl.Gd];
+      
+  b = [v_upper;
+      -v_lower;
+      v_upper;
+      -v_lower;
+      h_delta + mdl.e + mdl.d*(mdl.Fd*z + mdl.theta_hatd);
+      h_delta + mdl.e + mdl.d*(mdl.Fd*z + mdl.theta_hatd)];
+  
+  [v, ~, exitflag] = quadprog(H, f, A, b);
+  
+  if(exitflag ~= 1)
+      error(['quadprog failed with exit flag ', num2str(exitflag)]);
+  end
+  
+  block.OutputPort(1).Data = v;
 
 %endfunction
