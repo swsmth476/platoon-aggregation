@@ -47,6 +47,11 @@ function Output(block)
   
   z = block.InputPort(1).Data;
   
+  % in order to fix weird initialization bug
+  if(z == zeros(4,1))
+      z = mdl.z0; % set to initial state
+  end
+  
   Q = eye(3); % quadratic state cost
   R = eye(2); % quadratic input cost
   

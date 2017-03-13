@@ -8,7 +8,7 @@ function setup(block)
   
   %% Register number of input and output ports
   block.NumInputPorts  = 2;
-  block.NumOutputPorts = 1;
+  block.NumOutputPorts = 2;
 
   %% Setup functional port properties to dynamically
   %% inherited.
@@ -21,10 +21,8 @@ function setup(block)
   block.InputPort(2).Dimensions        = 4;
   block.InputPort(2).DirectFeedthrough = false;
   
-  %   block.InputPort(2).Dimensions        = 2;
-  %   block.InputPort(2).DirectFeedthrough = true;
-  
-  block.OutputPort(1).Dimensions       = 2;
+  block.OutputPort(1).Dimensions       = 12; 
+  block.OutputPort(2).Dimensions       = 2;
   
   %% Set block sample time to inherited
   block.SampleTimes = [-1 0];
@@ -36,13 +34,23 @@ function setup(block)
   block.SetAccelRunOnTLC(true);
   
   %% Register methods
-  block.RegBlockMethod('InitializeConditions',    @InitConditions);  
-  block.RegBlockMethod('Outputs',                 @Output);  
+  block.RegBlockMethod('SetInputPortSamplingMode', @SetInpPortFrameData);
+  block.RegBlockMethod('InitializeConditions',     @InitConditions);  
+  block.RegBlockMethod('Outputs',                  @Output);  
+  
+%endfunction
+
+function SetInpPortFrameData(block, idx, fd)
+  
+  block.InputPort(idx).SamplingMode = fd;
+  block.OutputPort(1).SamplingMode  = fd;
+  block.OutputPort(2).SamplingMode  = fd;
   
 %endfunction
 
 function InitConditions(block) 
-  block.OutputPort(1).Data = [0; 0];
+  block.OutputPort(1).Data = zeros(12,1);
+  block.OutputPort(2).Data = [0; 0];
   
 %endfunction
 
@@ -55,6 +63,8 @@ function Output(block)
   
   % possibly change later to include R & Q terms as in Girardi paper
 
-  block.OutputPort(1).Data = -mdl.K*(mdl.P*z + mdl.omega - x);
+  e = x - mdl.P*z - mdl.omega; % relative error
+  block.OutputPort(1).Data = e;
+  block.OutputPort(2).Data = mdl.K*e;
   
 %endfunction
