@@ -53,9 +53,9 @@ function Output(block)
   end
   
   % input cost factor
-  f = 1.2;
+  f = 0;
   
-  Q = eye(3); % quadratic state cost
+  Q = blkdiag(1, 2.5, 1); % quadratic state cost
   R = f*eye(2); % quadratic input cost
   
   % construct standard qp weights
@@ -88,7 +88,7 @@ function Output(block)
       v2*mdl.Gd;
       -v2*mdl.Gd;
       hl*mdl.Gd;
-      hl*mdl.Gd];
+      -hl*mdl.Gd];
 
   b = [a_upper;
       -a_lower;
