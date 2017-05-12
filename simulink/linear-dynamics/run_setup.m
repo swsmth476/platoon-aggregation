@@ -79,13 +79,22 @@ mdl.D = mdl.A*mdl.P - mdl.P*mdl.F;
 mdl.d = mdl.D(8,:);
 mdl.E = mdl.A*mdl.omega + mdl.theta - mdl.P*mdl.theta_hat;
 mdl.e = mdl.E(8);
+
+% "disturbance" matrix %
+temp = eye(12);
+e8 = temp(:,8);
+mdl.R = eye(2);
+mdl.W = [e8 mdl.B*mdl.R - mdl.P*mdl.G];
     
 % linear state feedback, Lyapunov %
 
 lambda = .2; % decay rate that we want to achieve
 
 % find Lyapunov matrix M and linear feedback K to achieve this decay
-[mdl.M, mdl.K] = decay_rate(mdl.A, mdl.B, mdl.C, lambda);
+[mdl.M, mdl.K] = decay_rate(mdl.A, mdl.B, mdl.C, mdl.W, lambda);
+% mdl.K = L2_gain_K(mdl.A, mdl.B, eye(12), mdl.W);
+% [mdl.M, rate] = get_rate(mdl.A + mdl.B*mdl.K, mdl.C);
+% mdl.gain = cond(M)^2*lambda;
 
 % sanity check
 assert(min(eig(mdl.M - mdl.C'*mdl.C)) >= 0)
@@ -93,13 +102,13 @@ assert(min(eig((mdl.A + mdl.B*mdl.K)'*mdl.M ...
     + mdl.M*(mdl.A + mdl.B*mdl.K) + 2*lambda*mdl.M)) <= 0)
 
 % initial states %
-mdl.x0 = [300; 23; 215; 22; 175; 22; 135; 20; 80; 17; 25; 15];
-mdl.z0 = [300; 22; 135; 24];
+mdl.x0 = [300; 25; 250; 25; 200; 25; 150; 25; 100; 25; 50; 25];
+mdl.z0 = [300; 25; 150; 25];
 
 % goal state for reference output %
 mdl.H = [0 1 0 0;
         1 0 -1 0;
         0 0 0 1];
-mdl.wg = [25; 150; 25];
+mdl.wg = [30; 150; 30];
 
 end
