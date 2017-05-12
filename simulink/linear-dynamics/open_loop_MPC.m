@@ -1,6 +1,8 @@
-function [ output_args ] = solve_MIQP( input_args )
-%SOLVE_MIQP Summary of this function goes here
-%   Detailed explanation goes here
+function [ output_args ] = open_loop_MPC( input_args )
+%%% Summary %%%
+% 
+
+%%% Description %%%
 
 
 end
