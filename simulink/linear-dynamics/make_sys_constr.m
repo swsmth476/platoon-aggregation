@@ -6,9 +6,9 @@ function [G, M] = make_sys_constr(T, A, B, theta, x0)
 % System dynamics are of the form:
 % x(t+1) = A*x(t) + B*u(t) + theta       (1)
 %
-% For an optimization problem with decision variables
-% U(t) = [u(t) u(t+1) ... u(t+T-1)]^T
-% X(t+1) = [x(t+1) x(t+2) ... x(t+T)]^T
+% For an optimization problem with decision variables (both col. vectors)
+% U(t) = [u(t); u(t+1); ... u(t+T-1)]
+% X(t+1) = [x(t+1); x(t+2); ... x(t+T)]
 %
 % make_sys_constr returns G and M such that requiring
 % X(t+1) = G*U(t) + M
