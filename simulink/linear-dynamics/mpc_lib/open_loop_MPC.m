@@ -1,6 +1,6 @@
 function [ output_args ] = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r)
 %%% Summary %%%
-% 
+% Adding a description now
 
 %%% Description %%%
 
