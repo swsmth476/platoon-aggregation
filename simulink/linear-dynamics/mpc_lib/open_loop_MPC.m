@@ -1,4 +1,4 @@
-function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu,P,Ut_old,sig)
+function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu,P,Ut_old,sig,M_in)
 %%% Summary %%%
 
 %%% Description %%%
@@ -20,9 +20,9 @@ for i = 1:T
 end
 
 % require that system updates satisfy x(t+1) = Ax(t) + Bu(t) + theta
-[G, M] = make_sys_constr(T, A, B, theta, x0);
-constraints = [constraints, x_bar <= G*u_bar + M];
-constraints = [constraints, x_bar >= G*u_bar + M];
+[G, L] = make_sys_constr(T, A, B, theta, x0);
+constraints = [constraints, x_bar <= G*u_bar + L];
+constraints = [constraints, x_bar >= G*u_bar + L];
 
 %%% INPUT_CONSTRAINTS %%%
 % require that inputs satisfy Hu*u(t) <= hu for all t
@@ -64,7 +64,7 @@ for i = 1:T
     rt_mu{i} = sdpvar(num_pred,1);
 end
 
-% row 'j' represents 'a_j' from a predicate mu_i(x(i))= a_j*x(i) + b_j
+% row 'j' represents 'a_j' from predicate mu_i(x(i))= a_j*x(i) + b_j
 mu_a = [1 0 -1 0 0 0;
         -1 0 1 0 0 0;
         0 0 0 0 1 0;
@@ -126,13 +126,27 @@ for i = 1:T
     end
 end
 
-% introduce variable rt_psi_even = eventually_[0,20] psi
+% introduce variable rt_psi_even = eventually_[0,T] psi
 rt_psi_even = sdpvar;
+pt_psi_even = binvar(T,1);
+constraints = [constraints, sum(pt_psi_even) <= 1];
+constraints = [constraints, sum(pt_psi_even) >= 1];
+for i = 1:T
+    constraints = [constraints, rt_psi_even <= rt_psi(i)];
+    constraints = [constraints, rt_psi(i) - (1 - pt_psi_even(i))*M <= rt_psi_even];
+    constraints = [constraints, rt_psi_even <= rt_psi(i) + (1 - pt_psi_even(i))];
+end
 
-
-% introduce variable rt_phi_alw = always_[0,20] phi
+% introduce variable rt_phi_alw = always_[0,T] phi
 rt_phi_alw = sdpvar;
-
+pt_phi_alw = binvar(T,1);
+constraints = [constraints, sum(pt_phi_alw) <= 1];
+constraints = [constraints, sum(pt_psi_alw) >= 1];
+for i = 1:T
+    constraints = [constraints, rt_phi_alw <= rt_phi(i)];
+    constraints = [constraints, rt_phi(i) - (1 - pt_phi_alw(i))*M <= rt_phi_alw];
+    constraints = [constraints, rt_phi_alw <= rt_phi(i) + (1 - pt_phi_alw(i))];
+end
     
 %%% OBJECTIVE_FUNCTION %%%
 
