@@ -30,7 +30,8 @@ constraints = [constraints, x_bar >= G*u_bar + L];
 constraints = [constraints, Hu_bar*u_bar <= hu_bar];
 
 %%% STL_CONSTRAINTS %%%
-% (a quantitative STL encoding is used - allows robustness of formula satisfaction)
+% (a quantitative STL encoding is used - 
+%                  allows us to adjust robustness of formula satisfaction)
 %
 % STL formula predicates %
 % mu1: platoon headway lower bound
@@ -96,7 +97,7 @@ for i = 1:T
     end
 end
 
-% introduce two variables as the conjunction of the predicates %
+% introduce two variables as the conjunctions of the predicates %
 % phi_t = mu_1(x_t) ^ mu_2(x_t) ^ ... ^ mu_6(x_t)
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
 rt_phi = sdpvar(T,1);
@@ -183,7 +184,7 @@ constraints = [constraints, rt_mpc <= rt_phi_alw + (1 - pt_mpc(2))];
 % final constraint
 % robustness_margin should be adjusted based on maximum error
 % between concrete and reference systems
-% (this will depend on the l-infinity gain of the feedback K
+% (this will depend on the L-infinity gain of the feedback K
 constraints = [constraints, rt_mpc >= robustness_margin];
 
 %%% OBJECTIVE_FUNCTION %%%
