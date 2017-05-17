@@ -1,4 +1,4 @@
-function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu,P,Ut_old,sig,M_in)
+function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu,sig)
 %%% Summary %%%
 
 %%% Description %%%
@@ -132,12 +132,14 @@ for i = 1:T
     end
 end
 
-% introduce variable rt_psi_even = eventually_[0,T] psi
+% introduce variable rt_psi_even = eventually_[0,accel_time] psi
+% set acceleration requirement
+accel_time = 30;
 rt_psi_even = sdpvar;
 pt_psi_even = binvar(T,1);
 constraints = [constraints, sum(pt_psi_even) <= 1];
 constraints = [constraints, sum(pt_psi_even) >= 1];
-for i = 1:T
+for i = 1:accel_time
     constraints = [constraints, rt_psi_even >= rt_psi(i)];
     constraints = [constraints, rt_psi(i) - (1 - pt_psi_even(i))*M <= rt_psi_even];
     constraints = [constraints, rt_psi_even <= rt_psi(i) + (1 - pt_psi_even(i))];
@@ -154,22 +156,7 @@ for i = 1:T
     constraints = [constraints, rt_phi_alw <= rt_phi(i) + (1 - pt_phi_alw(i))];
 end
 
-% need to negate speed change signal
-sig = 1 - sig;
-
-% introduce variable rt_impl = ~sig implies rt_psi_even
-rt_impl = sdpvar;
-pt_impl = binvar(2,1);
-constraints = [constraints, sum(pt_impl) <= 1];
-constraints = [constraints, sum(pt_impl) >= 1];
-constraints = [constraints, rt_impl >= pt_impl(1)];
-constraints = [constraints, rt_impl >= pt_impl(2)];
-constraints = [constraints, sig - (1 - pt_impl(1))*M <= rt_impl];
-constraints = [constraints, rt_impl <= sig + (1 - pt_impl(1))];
-constraints = [constraints, rt_psi_even - (1 - pt_impl(2))*M <= rt_impl];
-constraints = [constraints, rt_impl <= rt_psi_even + (1 - pt_impl(2))];
-
-% introduce variable rt_mpc = rt_phi_alw ^ rt_impl
+% introduce variable rt_mpc = rt_phi_alw ^ rt_psi_even
 rt_mpc = sdpvar;
 pt_mpc = binvar(2,1);
 constraints = [constraints, sum(pt_mpc) <= 1];
@@ -194,6 +181,6 @@ obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
 
 %%% CALL SOLVER %%%
 optimize(constraints, obj_fun, sdpsettings('solver','gurobi'));
-u_opt
+u_opt = value(u_bar);
 
 end
