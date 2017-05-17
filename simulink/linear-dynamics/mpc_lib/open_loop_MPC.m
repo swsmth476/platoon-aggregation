@@ -1,4 +1,4 @@
-function [ output_args ] = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu,Hx,hx,P,Ut_old)
+function [ output_args ] = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu,Hx,hx,P,Ut_old,sig)
 %%% Summary %%%
 
 %%% Description %%%
@@ -48,9 +48,10 @@ headway_ub = 160;
 vel_lb = 29;
 vel_ub = 31;
 
-% introduce predicate variables 
-for i = 1:num_pred
-    rt_mu{i} = sdpvar(T,1);
+% introduce predicate variables
+% rt_mu{i}(j) = predicate j at time index i
+for i = 1:T
+    rt_mu{i} = sdpvar(num_pred,1);
 end
 
 % predicates are linear, of the form mu(x_t) = a*x_t + b %
@@ -72,11 +73,10 @@ mu_b(5) = -vel_lb;
 mu_b(6) = vel_ub;
 
 % set rt_mu(i) = mu_i(x_t) for each predicate, and time index
-for i = 1:num_pred
-    for j = 0:T-1
-        x_idx = (j*n+1):(j*n+n);
-        constraints = [constraints, rt_mu{i}(j+1) <= mu_a(i,:)*x(x_idx) + mu_b(i)];
-        constraints = [constraints, rt_mu{i}(j+1) >= mu_a(i,:)*x(x_idx) + mu_b(i)];
+for i = 1:T
+    for j = 1:num_pred
+        constraints = [constraints, rt_mu{i}(j) <= mu_a(j,:)*x{i} + mu_b(j)];
+        constraints = [constraints, rt_mu{i}(j) >= mu_a(j,:)*x{i} + mu_b(j)];
     end
 end
 
@@ -99,14 +99,17 @@ for i = 1:T
     constraints = [constraints, sum(pt_psi{i}) <= 1];
     constraints = [constraints, sum(pt_psi{i}) >= 1];
     for j = 1:num_phi
-    constraints = [constraints, rt_phi(i) <= rt_mu{j}(i)];
-    constraints = [constraints, rt_mu{j}(i) - (1 - pt_phi{i}(j))*M <= rt_phi(i)];
-    constraints = [constraints, rt_phi(i) <= 
+        constraints = [constraints, rt_phi(i) <= rt_mu{j}(i)];
+        constraints = [constraints, rt_mu{i}(j) - (1 - pt_phi{i}(j))*M <= rt_phi(i)];
+        constraints = [constraints, rt_phi(i) <= rt_mu{i}(j) + M*(1 - pt_phi{i}(j))];
     end
-    for j = 1:num_psi
-    constraints = [constraints, rt_psi(i) <= rt_mu{2+j}(i)];
-    constraints = [constraints, 
+    for j = (num_phi+1):(num_phi+num_psi)
+        constraints = [constraints, rt_psi(i) <= rt_mu{j}(i)];
+        constraints = [constraints, rt_mu{i}(j) - (1 - pt_psi{i}(j))*M <= rt_psi(i)];
+        constraints = [constraints, rt_psi(i) <= rt_mu{i}(j) + M*(1 - pt_psi{i}(j))];
     end
 end
+
+
 
 end
