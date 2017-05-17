@@ -1,4 +1,4 @@
-function [Q_bar, q_bar, R_bar, r_bar] = make_obj_fun()
+function [Q_bar, q_bar, R_bar, r_bar] = make_QP_costs(Q,Qf,q,qf,R,r)
 %%% Summary %%%
 % Returns blocked state/input costs
 

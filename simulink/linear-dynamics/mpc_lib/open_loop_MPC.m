@@ -30,7 +30,7 @@ constraints = [constraints, x_bar >= G*u_bar + L];
 constraints = [constraints, Hu_bar*u_bar <= hu_bar];
 
 %%% STL_CONSTRAINTS %%%
-% (a quantitative STL encoding is used - 
+% (a quantitative STL encoding is used -
 %                  allows us to adjust robustness of formula satisfaction)
 %
 % STL formula predicates %
@@ -107,7 +107,7 @@ num_phi = 6;
 num_psi = 4; % number of conjunctions for each variable
 
 % NOTE: all the following constraints are simple negations, conjunctions,
-% and disjunctions of predicates, based on equations (3) (4) and (5) in 
+% and disjunctions of predicates, based on equations (3), (4), and (5) in 
 % "Model Predictive Control for Signal Temporal Logic Specifications"
 % by Vasumathi Raman et al.
 
@@ -184,10 +184,16 @@ constraints = [constraints, rt_mpc <= rt_phi_alw + (1 - pt_mpc(2))];
 % final constraint
 % robustness_margin should be adjusted based on maximum error
 % between concrete and reference systems
-% (this will depend on the L-infinity gain of the feedback K
+% (this will depend on the L-infinity gain of the feedback K)
 constraints = [constraints, rt_mpc >= robustness_margin];
 
 %%% OBJECTIVE_FUNCTION %%%
+[Q_bar, q_bar, R_bar, r_bar] = make_QP_costs(Q,Qf,q,qf,R,r);
+obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
+                q_bar'*x_bar + r_bar'*u_bar;
 
+%%% CALL SOLVER %%%
+optimize(constraints, obj_fun, sdpsettings('solver','gurobi'));
+u_opt
 
 end
