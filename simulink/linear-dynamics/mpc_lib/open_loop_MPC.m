@@ -96,7 +96,7 @@ for i = 1:T
     end
 end
 
-% define two variables as the conjunction of the predicates %
+% introduce two variables as the conjunction of the predicates %
 % phi_t = mu_1(x_t) ^ mu_2(x_t) ^ ... ^ mu_6(x_t)
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
 rt_phi = sdpvar(T,1);
@@ -104,6 +104,11 @@ rt_psi = sdpvar(T,1);
 
 num_phi = 6;
 num_psi = 4; % number of conjunctions for each variable
+
+% NOTE: all the following constraints are simple negations, conjunctions,
+% and disjunctions of predicates, based on equations (3) (4) and (5) in 
+% "Model Predictive Control for Signal Temporal Logic Specifications"
+% by Vasumathi Raman et al.
 
 for i = 1:T
     % create binary variables for conjunctions
@@ -132,7 +137,7 @@ pt_psi_even = binvar(T,1);
 constraints = [constraints, sum(pt_psi_even) <= 1];
 constraints = [constraints, sum(pt_psi_even) >= 1];
 for i = 1:T
-    constraints = [constraints, rt_psi_even <= rt_psi(i)];
+    constraints = [constraints, rt_psi_even >= rt_psi(i)];
     constraints = [constraints, rt_psi(i) - (1 - pt_psi_even(i))*M <= rt_psi_even];
     constraints = [constraints, rt_psi_even <= rt_psi(i) + (1 - pt_psi_even(i))];
 end
@@ -147,7 +152,40 @@ for i = 1:T
     constraints = [constraints, rt_phi(i) - (1 - pt_phi_alw(i))*M <= rt_phi_alw];
     constraints = [constraints, rt_phi_alw <= rt_phi(i) + (1 - pt_phi_alw(i))];
 end
-    
+
+% need to negate speed change signal
+sig = 1 - sig;
+
+% introduce variable rt_impl = ~sig implies rt_psi_even
+rt_impl = sdpvar;
+pt_impl = binvar(2,1);
+constraints = [constraints, sum(pt_impl) <= 1];
+constraints = [constraints, sum(pt_impl) >= 1];
+constraints = [constraints, rt_impl >= pt_impl(1)];
+constraints = [constraints, rt_impl >= pt_impl(2)];
+constraints = [constraints, sig - (1 - pt_impl(1))*M <= rt_impl];
+constraints = [constraints, rt_impl <= sig + (1 - pt_impl(1))];
+constraints = [constraints, rt_psi_even - (1 - pt_impl(2))*M <= rt_impl];
+constraints = [constraints, rt_impl <= rt_psi_even + (1 - pt_impl(2))];
+
+% introduce variable rt_mpc = rt_phi_alw ^ rt_impl
+rt_mpc = sdpvar;
+pt_mpc = binvar(2,1);
+constraints = [constraints, sum(pt_mpc) <= 1];
+constraints = [constraints, sum(pt_mpc) >= 1];
+constraints = [constraints, rt_mpc <= pt_mpc(1)];
+constraints = [constraints, rt_mpc <= pt_mpc(2)];
+constraints = [constraints, rt_phi_alw - (1 - pt_mpc(1))*M <= rt_mpc];
+constraints = [constraints, rt_mpc <= sig + (1 - pt_mpc(1))];
+constraints = [constraints, rt_phi_alw - (1 - pt_mpc(2))*M <= rt_mpc];
+constraints = [constraints, rt_mpc <= rt_phi_alw + (1 - pt_mpc(2))];
+
+% final constraint
+% robustness_margin should be adjusted based on maximum error
+% between concrete and reference systems
+% (this will depend on the l-infinity gain of the feedback K
+constraints = [constraints, rt_mpc >= robustness_margin];
+
 %%% OBJECTIVE_FUNCTION %%%
 
 
