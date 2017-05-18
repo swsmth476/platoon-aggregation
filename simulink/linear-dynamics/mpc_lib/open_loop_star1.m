@@ -116,11 +116,11 @@ end
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
 
 % set acceleration requirement
-accel_time = 55;
+accel_time = 35;
 
 % variables for phi/psi formulas
 rt_phi = sdpvar(T,1);
-rt_psi = sdpvar(accel_time,1);
+rt_psi = sdpvar(T,1);
 
 % number of conjunctions for each variable
 num_phi = 6;
@@ -146,7 +146,7 @@ for i = 1:T
 end
 
 % do conjunctions necessary for psi
-for i = 1:accel_time
+for i = 1:T
     % create binary variables for conjunctions
     pt_psi{i} = binvar(num_psi,1);
     % add conjunction constraints
@@ -159,47 +159,76 @@ for i = 1:accel_time
     end
 end
 
-% introduce variable rt_phi_alw = always_[0,T] phi
-rt_phi_alw = sdpvar;
-pt_phi_alw = binvar(T,1);
-constraints = [constraints, sum(pt_phi_alw) <= 1];
-constraints = [constraints, sum(pt_phi_alw) >= 1];
-for i = 1:T
-    constraints = [constraints, rt_phi_alw <= rt_phi(i)];
-    constraints = [constraints, rt_phi(i) - (1 - pt_phi_alw(i))*M <= rt_phi_alw];
-    constraints = [constraints, rt_phi_alw <= rt_phi(i) + M*(1 - pt_phi_alw(i))];
-end
+% introduce variable rt_phi_alw = always_[0,H] phi
+% introduce variable rt_psi_even = eventually_[0,H] psi
+% introduce variable rt_impl = signal ==> rt_psi_even (logical implies)
+% introduce variable rt_mpc = rt_phi_alw ^ rt_impl
+rt_phi_alw = sdpvar(H,1);
+rt_psi_even = sdpvar(H,1);
+rt_impl = sdpvar(H,1);
+rt_mpc = sdpvar(H,1);
 
-% introduce variable rt_psi_even = eventually_[0,accel_time] psi
-rt_psi_even = sdpvar;
-pt_psi_even = binvar(accel_time,1);
-constraints = [constraints, sum(pt_psi_even) <= 1];
-constraints = [constraints, sum(pt_psi_even) >= 1];
-for i = 1:accel_time
-    constraints = [constraints, rt_psi_even >= rt_psi(i)];
-    constraints = [constraints, rt_psi(i) - (1 - pt_psi_even(i))*M <= rt_psi_even];
-    constraints = [constraints, rt_psi_even <= rt_psi(i) + M*(1 - pt_psi_even(i))];
-end
+for i = 1:H
+    
+    % always
+    pt_phi_alw{i} = binvar(H,1);
+    constraints = [constraints, sum(pt_phi_alw{i}) <= 1];
+    constraints = [constraints, sum(pt_phi_alw{i}) >= 1];
+    for j = 1:H
+        constraints = [constraints, rt_phi_alw(i) <= rt_phi(i+j-1)];
+        constraints = [constraints, rt_phi(i+j-1) - (1 - pt_phi_alw{i}(j))*M <= rt_phi_alw(i)];
+        constraints = [constraints, rt_phi_alw(i) <= rt_phi(i+j-1) + M*(1 - pt_phi_alw{i}(j))];
+    end
+    
+    % eventually
+    pt_psi_even{i} = binvar(H,1);
+    constraints = [constraints, sum(pt_psi_even{i}) <= 1];
+    constraints = [constraints, sum(pt_psi_even{i}) >= 1];
+    for j = 1:H
+        constraints = [constraints, rt_psi_even(i) >= rt_psi(i+j-1)];
+        constraints = [constraints, rt_psi(i+j-1) - (1 - pt_psi_even{i}(j))*M <= rt_psi_even(i)];
+        constraints = [constraints, rt_psi_even(i) <= rt_psi(i+j-1) + M*(1 - pt_psi_even{i}(j))];
+    end
 
-% introduce variable rt_mpc = rt_phi_alw ^ rt_psi_even
-rt_mpc = sdpvar;
-pt_mpc = binvar(2,1);
-constraints = [constraints, sum(pt_mpc) <= 1];
-constraints = [constraints, sum(pt_mpc) >= 1];
-constraints = [constraints, rt_mpc <= rt_phi_alw];
-constraints = [constraints, rt_mpc <= rt_psi_even];
-constraints = [constraints, rt_phi_alw - (1 - pt_mpc(1))*M <= rt_mpc];
-constraints = [constraints, rt_mpc <= rt_phi_alw + M*(1 - pt_mpc(1))];
-constraints = [constraints, rt_psi_even - (1 - pt_mpc(2))*M <= rt_mpc];
-constraints = [constraints, rt_mpc <= rt_psi_even + M*(1 - pt_mpc(2))];
+    % implication
+    pt_impl{i} = binvar(2,1);
+    constraints = [constraints, sum(pt_impl{i}) <= 1];
+    constraints = [constraints, sum(pt_impl{i}) >= 1];
+    constraints = [constraints, rt_impl(i) >= rt_psi_even(i)];
+    constraints = [constraints, rt_impl(i) >= -signal(i)];
+    constraints = [constraints, rt_psi_even(i) - (1 - pt_impl{i}(1))*M <= rt_impl(i)];
+    constraints = [constraints, rt_impl(i) <= rt_psi_even(i) + M*(1 - pt_impl{i}(1))];
+    constraints = [constraints, -signal(i) - (1 - pt_impl{i}(2))*M <= rt_impl(i)];
+    constraints = [constraints, rt_impl(i) <= -signal(i) + M*(1 - pt_impl{i}(2))];
+    
+    % overall formula
+    pt_mpc{i} = binvar(2,1);
+    constraints = [constraints, sum(pt_mpc{i}) <= 1];
+    constraints = [constraints, sum(pt_mpc{i}) >= 1];
+    constraints = [constraints, rt_mpc(i) <= rt_phi_alw(i)];
+    constraints = [constraints, rt_mpc(i) <= rt_impl(i)];
+    constraints = [constraints, rt_phi_alw(i) - (1 - pt_mpc{i}(1))*M <= rt_mpc(i)];
+    constraints = [constraints, rt_mpc(i) <= rt_phi_alw(i) + M*(1 - pt_mpc{i}(1))];
+    constraints = [constraints, rt_impl(i) - (1 - pt_mpc{i}(2))*M <= rt_mpc(i)];
+    constraints = [constraints, rt_mpc(i) <= rt_impl(i) + M*(1 - pt_mpc{i}(2))];
+    
+end
 
 % robustness_margin should be adjusted based on maximum error
 % between concrete and reference systems
 % (this will depend on the L-infinity gain of the feedback K)
 robustness_margin = 0;
 
-% final constraint
-constraints = [constraints, rt_mpc >= robustness_margin];
+%%% ADDITIONAL CONSTRAINTS %%%
+% these constraints are added to the open_loop_MPC implementation
+for i = 1:H
+    constraints = [constraints, rt_mpc(i) >= P(i) + robustness_margin];
+end
+
+for i = 1:size(ut_old,2)
+    constraints = [constraints, u{i} <= ut_old(:,i)];
+    constraints = [constraints, u{i} >= ut_old(:,i)];
+end
 
 %%% OBJECTIVE_FUNCTION %%%
 [Q_bar, q_bar, R_bar, r_bar] = make_QP_costs(T,Q,Qf,q,qf,R,r);
@@ -207,7 +236,7 @@ obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
                 q_bar'*x_bar + r_bar'*u_bar;
 
 %%% CALL SOLVER %%%
-optimize(constraints, [], sdpsettings('solver','gurobi'))
+optimize(constraints, obj_fun, sdpsettings('solver','gurobi'))
 u_opt = value(u_bar);
 
 end
