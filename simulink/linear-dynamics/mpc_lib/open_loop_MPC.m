@@ -1,7 +1,15 @@
 function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu)
 %%% Summary %%%
+% Open loop MPC which plans a series of inputs satisfying the specified 
+% STL formula
 
 %%% Description %%%
+% STL formula to be satisfied is 
+% always_[0, T] phi ^ eventually_[0, accel_bound] psi
+%
+% where phi encodes safety and input constraints
+% and psi encodes velocity constraints 
+% (forcing the platoon to accelerate)
 
 % make M a large number
 M = 1e4;
