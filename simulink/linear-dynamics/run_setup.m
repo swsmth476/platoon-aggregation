@@ -130,8 +130,8 @@ R = eye(2);
 r = zeros(2,1);
 
 % jerk constraints
-j_ub = 0.1;
-j_lb = -0.1;
+j_ub = 0.2;
+j_lb = -0.2;
 
 % input constraints
 Hu = [eye(2); -eye(2)];

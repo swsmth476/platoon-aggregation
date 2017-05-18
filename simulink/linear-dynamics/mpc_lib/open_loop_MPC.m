@@ -113,7 +113,7 @@ end
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
 
 % set acceleration requirement
-accel_time = 55;
+accel_time = 35;
 
 % variables for phi/psi formulas
 rt_phi = sdpvar(T,1);
@@ -204,7 +204,7 @@ obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
                 q_bar'*x_bar + r_bar'*u_bar;
 
 %%% CALL SOLVER %%%
-optimize(constraints, [], sdpsettings('solver','gurobi'))
+optimize(constraints, obj_fun, sdpsettings('solver','gurobi'))
 u_opt = value(u_bar);
 
 end
