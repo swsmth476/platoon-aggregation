@@ -1,4 +1,4 @@
-function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu,sig)
+function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu)
 %%% Summary %%%
 
 %%% Description %%%
@@ -111,13 +111,28 @@ num_psi = 4; % number of conjunctions for each variable
 % "Model Predictive Control for Signal Temporal Logic Specifications"
 % by Vasumathi Raman et al.
 
+% do conjunctions necessary for phi
 for i = 1:T
     % create binary variables for conjunctions
     pt_phi{i} = binvar(num_phi,1);
-    pt_psi{i} = binvar(num_psi,1);
     % add conjunction constraints
     constraints = [constraints, sum(pt_phi{i}) <= 1];
     constraints = [constraints, sum(pt_phi{i}) >= 1];
+    for j = 1:num_phi
+        constraints = [constraints, rt_phi(i) <= rt_mu{j}(i)];
+        constraints = [constraints, rt_mu{i}(j) - (1 - pt_phi{i}(j))*M <= rt_phi(i)];
+        constraints = [constraints, rt_phi(i) <= rt_mu{i}(j) + M*(1 - pt_phi{i}(j))];
+    end
+end
+
+% set acceleration requirement
+accel_time = 30;
+
+% do conjunctions necessary for psi
+for i = 1:accel_time
+    % create binary variables for conjunctions
+    pt_psi{i} = binvar(num_psi,1);
+    % add conjunction constraints
     constraints = [constraints, sum(pt_psi{i}) <= 1];
     constraints = [constraints, sum(pt_psi{i}) >= 1];
     for j = 1:num_phi
@@ -133,8 +148,6 @@ for i = 1:T
 end
 
 % introduce variable rt_psi_even = eventually_[0,accel_time] psi
-% set acceleration requirement
-accel_time = 30;
 rt_psi_even = sdpvar;
 pt_psi_even = binvar(T,1);
 constraints = [constraints, sum(pt_psi_even) <= 1];
@@ -164,9 +177,9 @@ constraints = [constraints, sum(pt_mpc) >= 1];
 constraints = [constraints, rt_mpc <= pt_mpc(1)];
 constraints = [constraints, rt_mpc <= pt_mpc(2)];
 constraints = [constraints, rt_phi_alw - (1 - pt_mpc(1))*M <= rt_mpc];
-constraints = [constraints, rt_mpc <= sig + (1 - pt_mpc(1))];
-constraints = [constraints, rt_phi_alw - (1 - pt_mpc(2))*M <= rt_mpc];
-constraints = [constraints, rt_mpc <= rt_phi_alw + (1 - pt_mpc(2))];
+constraints = [constraints, rt_mpc <= rt_phi_alw + (1 - pt_mpc(1))];
+constraints = [constraints, rt_psi_even - (1 - pt_mpc(2))*M <= rt_mpc];
+constraints = [constraints, rt_mpc <= rt_psi_even + (1 - pt_mpc(2))];
 
 % final constraint
 % robustness_margin should be adjusted based on maximum error
