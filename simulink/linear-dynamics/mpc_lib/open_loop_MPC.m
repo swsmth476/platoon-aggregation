@@ -3,6 +3,9 @@ function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu)
 
 %%% Description %%%
 
+% make M a large number
+M = 1e3;
+
 constraints = [];
 
 %%% SYSTEM_CONSTRAINTS %%%
@@ -16,7 +19,7 @@ for i = 1:T
     x{i} = sdpvar(n,1);
     u{i} = sdpvar(m,1);
     x_bar = [x_bar; x{i}];
-    u_bar = [u_bar, u{i}];
+    u_bar = [u_bar; u{i}];
 end
 
 % require that system updates satisfy x(t+1) = Ax(t) + Bu(t) + theta
@@ -100,8 +103,12 @@ end
 % introduce two variables as the conjunctions of the predicates %
 % phi_t = mu_1(x_t) ^ mu_2(x_t) ^ ... ^ mu_6(x_t)
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
+
+% set acceleration requirement
+accel_time = 30;
+
 rt_phi = sdpvar(T,1);
-rt_psi = sdpvar(T,1);
+rt_psi = sdpvar(accel_time,1);
 
 num_phi = 6;
 num_psi = 4; % number of conjunctions for each variable
@@ -119,14 +126,11 @@ for i = 1:T
     constraints = [constraints, sum(pt_phi{i}) <= 1];
     constraints = [constraints, sum(pt_phi{i}) >= 1];
     for j = 1:num_phi
-        constraints = [constraints, rt_phi(i) <= rt_mu{j}(i)];
+        constraints = [constraints, rt_phi(i) <= rt_mu{i}(j)];
         constraints = [constraints, rt_mu{i}(j) - (1 - pt_phi{i}(j))*M <= rt_phi(i)];
         constraints = [constraints, rt_phi(i) <= rt_mu{i}(j) + M*(1 - pt_phi{i}(j))];
     end
 end
-
-% set acceleration requirement
-accel_time = 30;
 
 % do conjunctions necessary for psi
 for i = 1:accel_time
@@ -135,16 +139,22 @@ for i = 1:accel_time
     % add conjunction constraints
     constraints = [constraints, sum(pt_psi{i}) <= 1];
     constraints = [constraints, sum(pt_psi{i}) >= 1];
-    for j = 1:num_phi
-        constraints = [constraints, rt_phi(i) <= rt_mu{j}(i)];
-        constraints = [constraints, rt_mu{i}(j) - (1 - pt_phi{i}(j))*M <= rt_phi(i)];
-        constraints = [constraints, rt_phi(i) <= rt_mu{i}(j) + M*(1 - pt_phi{i}(j))];
+    for j = 1:num_psi
+        constraints = [constraints, rt_psi(i) <= rt_mu{i}(j+num_phi)];
+        constraints = [constraints, rt_mu{i}(j+num_phi) - (1 - pt_psi{i}(j))*M <= rt_psi(i)];
+        constraints = [constraints, rt_psi(i) <= rt_mu{i}(j+num_phi) + M*(1 - pt_psi{i}(j))];
     end
-    for j = (num_phi+1):(num_phi+num_psi)
-        constraints = [constraints, rt_psi(i) <= rt_mu{j}(i)];
-        constraints = [constraints, rt_mu{i}(j) - (1 - pt_psi{i}(j))*M <= rt_psi(i)];
-        constraints = [constraints, rt_psi(i) <= rt_mu{i}(j) + M*(1 - pt_psi{i}(j))];
-    end
+end
+
+% introduce variable rt_phi_alw = always_[0,T] phi
+rt_phi_alw = sdpvar;
+pt_phi_alw = binvar(T,1);
+constraints = [constraints, sum(pt_phi_alw) <= 1];
+constraints = [constraints, sum(pt_phi_alw) >= 1];
+for i = 1:T
+    constraints = [constraints, rt_phi_alw <= rt_phi(i)];
+    constraints = [constraints, rt_phi(i) - (1 - pt_phi_alw(i))*M <= rt_phi_alw];
+    constraints = [constraints, rt_phi_alw <= rt_phi(i) + (1 - pt_phi_alw(i))];
 end
 
 % introduce variable rt_psi_even = eventually_[0,accel_time] psi
@@ -156,17 +166,6 @@ for i = 1:accel_time
     constraints = [constraints, rt_psi_even >= rt_psi(i)];
     constraints = [constraints, rt_psi(i) - (1 - pt_psi_even(i))*M <= rt_psi_even];
     constraints = [constraints, rt_psi_even <= rt_psi(i) + (1 - pt_psi_even(i))];
-end
-
-% introduce variable rt_phi_alw = always_[0,T] phi
-rt_phi_alw = sdpvar;
-pt_phi_alw = binvar(T,1);
-constraints = [constraints, sum(pt_phi_alw) <= 1];
-constraints = [constraints, sum(pt_psi_alw) >= 1];
-for i = 1:T
-    constraints = [constraints, rt_phi_alw <= rt_phi(i)];
-    constraints = [constraints, rt_phi(i) - (1 - pt_phi_alw(i))*M <= rt_phi_alw];
-    constraints = [constraints, rt_phi_alw <= rt_phi(i) + (1 - pt_phi_alw(i))];
 end
 
 % introduce variable rt_mpc = rt_phi_alw ^ rt_psi_even
@@ -181,14 +180,16 @@ constraints = [constraints, rt_mpc <= rt_phi_alw + (1 - pt_mpc(1))];
 constraints = [constraints, rt_psi_even - (1 - pt_mpc(2))*M <= rt_mpc];
 constraints = [constraints, rt_mpc <= rt_psi_even + (1 - pt_mpc(2))];
 
-% final constraint
 % robustness_margin should be adjusted based on maximum error
 % between concrete and reference systems
 % (this will depend on the L-infinity gain of the feedback K)
+robustness_margin = 0;
+
+% final constraint
 constraints = [constraints, rt_mpc >= robustness_margin];
 
 %%% OBJECTIVE_FUNCTION %%%
-[Q_bar, q_bar, R_bar, r_bar] = make_QP_costs(Q,Qf,q,qf,R,r);
+[Q_bar, q_bar, R_bar, r_bar] = make_QP_costs(T,Q,Qf,q,qf,R,r);
 obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
                 q_bar'*x_bar + r_bar'*u_bar;
 

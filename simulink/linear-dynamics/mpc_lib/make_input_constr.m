@@ -15,7 +15,7 @@ function [Hu_bar, hu_bar] = make_input_constr(T, Hu, hu)
 Hu_bar = [];
 hu_bar = [];
 
-for i = 1:T-1
+for i = 1:T
     Hu_bar = blkdiag(Hu_bar, Hu);
     hu_bar = [hu_bar; hu];
 end
