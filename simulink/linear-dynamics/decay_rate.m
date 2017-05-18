@@ -10,15 +10,12 @@ function [M, K] = decay_rate(A, B, C, F, rate)
 M_bar = sdpvar(12,12,'symmetric');
 K_bar = sdpvar(2,12);
 
-alpha = .1;
-
 % set up constraints and solve
 k = size(C,1);
 G = [M_bar M_bar*C';
     C*M_bar eye(k)];
 cnstr = [G >= 0];
 cnstr = [cnstr, M_bar*A' + A*M_bar + K_bar'*B' + B*K_bar <= -2*rate*M_bar];
-cnstr = [cnstr, (alpha - 2*rate)*M_bar + 1/alpha*(F*F') <= 0];
 optimize(cnstr, [], sdpsettings('solver','mosek'));
 
 M = inv(value(M_bar));
