@@ -4,7 +4,7 @@ function u_opt = open_loop_MPC(A,B,theta,x0,T,Q,Qf,q,qf,R,r,Hu,hu)
 %%% Description %%%
 
 % make M a large number
-M = 1e3;
+M = 1e4;
 
 constraints = [];
 
@@ -107,11 +107,13 @@ end
 % set acceleration requirement
 accel_time = 30;
 
+% variables for phi/psi formulas
 rt_phi = sdpvar(T,1);
 rt_psi = sdpvar(accel_time,1);
 
+% number of conjunctions for each variable
 num_phi = 6;
-num_psi = 4; % number of conjunctions for each variable
+num_psi = 4;
 
 % NOTE: all the following constraints are simple negations, conjunctions,
 % and disjunctions of predicates, based on equations (3), (4), and (5) in 
@@ -154,7 +156,7 @@ constraints = [constraints, sum(pt_phi_alw) >= 1];
 for i = 1:T
     constraints = [constraints, rt_phi_alw <= rt_phi(i)];
     constraints = [constraints, rt_phi(i) - (1 - pt_phi_alw(i))*M <= rt_phi_alw];
-    constraints = [constraints, rt_phi_alw <= rt_phi(i) + (1 - pt_phi_alw(i))];
+    constraints = [constraints, rt_phi_alw <= rt_phi(i) + M*(1 - pt_phi_alw(i))];
 end
 
 % introduce variable rt_psi_even = eventually_[0,accel_time] psi
@@ -165,7 +167,7 @@ constraints = [constraints, sum(pt_psi_even) >= 1];
 for i = 1:accel_time
     constraints = [constraints, rt_psi_even >= rt_psi(i)];
     constraints = [constraints, rt_psi(i) - (1 - pt_psi_even(i))*M <= rt_psi_even];
-    constraints = [constraints, rt_psi_even <= rt_psi(i) + (1 - pt_psi_even(i))];
+    constraints = [constraints, rt_psi_even <= rt_psi(i) + M*(1 - pt_psi_even(i))];
 end
 
 % introduce variable rt_mpc = rt_phi_alw ^ rt_psi_even
@@ -173,12 +175,12 @@ rt_mpc = sdpvar;
 pt_mpc = binvar(2,1);
 constraints = [constraints, sum(pt_mpc) <= 1];
 constraints = [constraints, sum(pt_mpc) >= 1];
-constraints = [constraints, rt_mpc <= pt_mpc(1)];
-constraints = [constraints, rt_mpc <= pt_mpc(2)];
+constraints = [constraints, rt_mpc <= rt_phi_alw];
+constraints = [constraints, rt_mpc <= rt_psi_even];
 constraints = [constraints, rt_phi_alw - (1 - pt_mpc(1))*M <= rt_mpc];
-constraints = [constraints, rt_mpc <= rt_phi_alw + (1 - pt_mpc(1))];
+constraints = [constraints, rt_mpc <= rt_phi_alw + M*(1 - pt_mpc(1))];
 constraints = [constraints, rt_psi_even - (1 - pt_mpc(2))*M <= rt_mpc];
-constraints = [constraints, rt_mpc <= rt_psi_even + (1 - pt_mpc(2))];
+constraints = [constraints, rt_mpc <= rt_psi_even + M*(1 - pt_mpc(2))];
 
 % robustness_margin should be adjusted based on maximum error
 % between concrete and reference systems

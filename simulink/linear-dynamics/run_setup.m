@@ -134,8 +134,8 @@ Hu = [eye(2); -eye(2)];
 hu = [0.1; 0.1; -0.1; -0.1];
 
 % run open-loop MPC test
-T = 50;
-u_opt = open_loop_MPC(A, B, theta, z0, T, ...
+T = 75;
+mdl.u_opt = open_loop_MPC(A, B, theta, z0, T, ...
                         Q, Qf, q, qf, R, r, Hu, hu);
 
 end
