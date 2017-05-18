@@ -52,14 +52,14 @@ num_pred = 10;
 
 % STL formula values %
 headway_des = 150;
-headway_delta = 10;
+headway_delta = 5;
 headway_lb = headway_des - headway_delta;
 headway_ub = headway_des + headway_delta;
 vel_des = 30;
-vel_delta = 3;
+vel_delta = 1;
 vel_lb = vel_des - vel_delta;
 vel_ub = vel_des + vel_delta;
-accel_bd = 5; % absolute value |accel| < accel_bd
+accel_bd = 8; % absolute value |accel| < accel_bd
 
 % introduce predicate variables
 % predicates are affine, of the form mu(x(i)) = a*x(i) + b %
@@ -105,7 +105,7 @@ end
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
 
 % set acceleration requirement
-accel_time = 30;
+accel_time = 55;
 
 % variables for phi/psi formulas
 rt_phi = sdpvar(T,1);
@@ -161,7 +161,7 @@ end
 
 % introduce variable rt_psi_even = eventually_[0,accel_time] psi
 rt_psi_even = sdpvar;
-pt_psi_even = binvar(T,1);
+pt_psi_even = binvar(accel_time,1);
 constraints = [constraints, sum(pt_psi_even) <= 1];
 constraints = [constraints, sum(pt_psi_even) >= 1];
 for i = 1:accel_time
@@ -196,7 +196,7 @@ obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
                 q_bar'*x_bar + r_bar'*u_bar;
 
 %%% CALL SOLVER %%%
-optimize(constraints, obj_fun, sdpsettings('solver','gurobi'));
+optimize(constraints, [], sdpsettings('solver','gurobi'))
 u_opt = value(u_bar);
 
 end

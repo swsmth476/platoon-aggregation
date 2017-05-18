@@ -10,7 +10,6 @@ function [Hu_bar, hu_bar] = make_input_constr(T, Hu, hu)
 % Hu_bar*U(t) <= hu_bar
 % is equivalent to requiring 
 % Hu*u(t) <= hu, Hu*u(t+1) <= hu, ..., Hu*u(t+T-1) <= hu
-%
 
 Hu_bar = [];
 hu_bar = [];

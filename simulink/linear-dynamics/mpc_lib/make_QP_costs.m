@@ -7,6 +7,7 @@ function [Q_bar, q_bar, R_bar, r_bar] = make_QP_costs(T,Q,Qf,q,qf,R,r)
 %           q_bar = [q; q; ...; q; qf]
 %           R_bar = diag(R, R, ..., R)
 %           r_bar = [r; r; ...; r]
+%
 
 Q_bar = [];
 q_bar = [];

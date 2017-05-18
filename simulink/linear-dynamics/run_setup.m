@@ -129,9 +129,13 @@ qf = zeros(6,1);
 R = eye(2);
 r = zeros(2,1);
 
+% jerk constraints
+j_ub = 0.1;
+j_lb = -0.1;
+
 % input constraints
 Hu = [eye(2); -eye(2)];
-hu = [0.1; 0.1; -0.1; -0.1];
+hu = [j_ub; j_ub; -j_lb; -j_lb];
 
 % run open-loop MPC test
 T = 75;
