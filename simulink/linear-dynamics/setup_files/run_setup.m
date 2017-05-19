@@ -114,7 +114,7 @@ mdl.wg = [30; 150; 30];
 %%% CLOSED LOOP CONTROLLER %%%
 M = 1e4;
 mdl.mpc_H = 20;
-mdl.mpc_P = -M*ones(35,1);
+mdl.mpc_P = -M*ones(mdl.mpc_H,1);
 mdl.ut_old = [];
 
 %%% OPEN LOOP CONTROLLER %%%

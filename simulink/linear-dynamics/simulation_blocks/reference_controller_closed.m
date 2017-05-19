@@ -48,17 +48,17 @@ function Output(block)
 
   % model predictive controller for reference model %
   
-  z = block.InputPort(1).Data;
+  zt = block.InputPort(1).Data;
   time = block.InputPort(2).Data;
   
   % in order to fix weird initialization bug
-  if(z == zeros(6,1))
-      z = [mdl.z0; zeros(2,1)]; % set to initial state
+  if(zt == zeros(6,1))
+      zt = [mdl.z0; zeros(2,1)]; % set to initial state
   end
   
   % find time step index
   dt = 0.1;
-  time_step = floor(time/dt) + 1;
+  time_step = floor(time/dt);
   
   % create augmented system dynamics
   A = [[mdl.Fd mdl.Gd]; zeros(2,4) eye(2)];
@@ -84,27 +84,43 @@ function Output(block)
   if(time_step < mdl.mpc_H)
       
       % create acceleration signal
-      signal = 2*(1:mdl.mpc_H > 3) - 1;
+      signal = 2*(1:mdl.mpc_H > 10) - 1;
       
       % transient phase of MPC
-      z0 = [mdl.z0; zeros(2,1)];
-      mdl.mpc_P(time_step) = 0;
-      v_opt = open_loop_star1(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+      mdl.mpc_P(time_step + 1) = 0;
+      v_opt = open_loop_star1(A,B,theta,zt,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
       v_idx = (time_step*2 + 1):(time_step*2 + 2);
       delta_v = v_opt(v_idx);
-      mdl.ut_old = [mdl.ut_old, delta_v];
       
+      % store old inputs for next iteration
+      % conditionals necessary because simulink repeats some initial time steps
+      if(size(mdl.ut_old,2) < time_step + 1) % save input if not stored yet
+          mdl.ut_old = [mdl.ut_old, delta_v];
+      else % if this time step was already saved, replace the old one
+          mdl.ut_old(:, time_step + 1) = delta_v;
+      end
+
   else
       
+      % create acceleration signal
+      signal = 2*((time_step):(time_step + mdl.mpc_H - 1) > 10) - 1;
+      
       % stationary phase of MPC
-      v_opt = open_loop_star1(A,B,theta,z,mdl.STL_H,Q,Qf,q,qf,R,r, ...
-                                Hu,hu,zeros(mdl.STL_H,1),ut_old,signal);
+      mdl.mpc_P = zeros(mdl.mpc_H,1);
+      v_opt = open_loop_star1(A,B,theta,zt,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+                                    Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
+      v_idx = (mdl.mpc_H*2 + 1):(mdl.mpc_H*2 + 2);
+      delta_v = v_opt(v_idx);
+                            
+      % store old inputs for next iteration
+      old_idx = 3:(mdl.mpc_H*2 + 3);
+      mdl.ut_old = v_opt(old_idx);
       
   end
   
   % implement input
-  v = z(5:6);
+  v = zt(5:6);
   block.OutputPort(1).Data = v + delta_v;
 
 %endfunction
