@@ -58,7 +58,7 @@ function Output(block)
   
   % find time step index
   dt = 0.1;
-  time_step = floor(time/dt);
+  time_step = floor(time/dt) + 1;
   
   % create augmented system dynamics
   A = [[mdl.Fd mdl.Gd]; zeros(2,4) eye(2)];
@@ -74,27 +74,28 @@ function Output(block)
   r = zeros(2,1);
   
   % jerk constraints
-  j_ub = 0.2;
-  j_lb = -0.2;
+  j_ub = 0.4;
+  j_lb = -0.4;
   
   % input constraints
   Hu = [eye(2); -eye(2)];
   hu = [j_ub; j_ub; -j_lb; -j_lb];
   
-  % create acceleration signal 
-  signal = ((time_step):(time_step+mdl.mpc_H) > 2);
-  time_step = time_step + 1;
-  
   if(time_step < mdl.mpc_H)
+      
+      % create acceleration signal
+      signal = 2*(1:mdl.mpc_H > 3) - 1;
+      
       % transient phase of MPC
-      x0 = [mdl.z0; zeros(2,1)];
+      z0 = [mdl.z0; zeros(2,1)];
       mdl.mpc_P(time_step) = 0;
-      v_opt = open_loop_star1(A,B,theta,x0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+      v_opt = open_loop_star1(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
-      indices = (time_step*2 + 1):(time_step*2 + 2);
-      delta_v = v_opt(indices);
-      mdl.ut_old(:,time_step) = delta_v;
-%   else
+      v_idx = (time_step*2 + 1):(time_step*2 + 2);
+      delta_v = v_opt(v_idx);
+      mdl.ut_old = [mdl.ut_old, delta_v];
+      
+  else
 %       % stationary phase of MPC
 %       v_opt = open_loop_star1(A,B,theta,z,mdl.STL_H,Q,Qf,q,qf,R,r, ...
 %                                 Hu,hu,zeros(mdl.STL_H,1),ut_old);

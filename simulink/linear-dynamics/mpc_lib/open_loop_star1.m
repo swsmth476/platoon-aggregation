@@ -168,6 +168,9 @@ rt_psi_even = sdpvar(H,1);
 rt_impl = sdpvar(H,1);
 rt_mpc = sdpvar(H,1);
 
+% invert signal input for implication formula
+n_sig = -signal;
+
 for i = 1:H
     
     % always
@@ -195,22 +198,22 @@ for i = 1:H
     constraints = [constraints, sum(pt_impl{i}) <= 1];
     constraints = [constraints, sum(pt_impl{i}) >= 1];
     constraints = [constraints, rt_impl(i) >= rt_psi_even(i)];
-    constraints = [constraints, rt_impl(i) >= -signal(i)];
+    constraints = [constraints, rt_impl(i) >= n_sig(i)];
     constraints = [constraints, rt_psi_even(i) - (1 - pt_impl{i}(1))*M <= rt_impl(i)];
     constraints = [constraints, rt_impl(i) <= rt_psi_even(i) + M*(1 - pt_impl{i}(1))];
-    constraints = [constraints, -signal(i) - (1 - pt_impl{i}(2))*M <= rt_impl(i)];
-    constraints = [constraints, rt_impl(i) <= -signal(i) + M*(1 - pt_impl{i}(2))];
+    constraints = [constraints, n_sig(i) - (1 - pt_impl{i}(2))*M <= rt_impl(i)];
+    constraints = [constraints, rt_impl(i) <= n_sig(i) + M*(1 - pt_impl{i}(2))];
     
     % overall formula
     pt_mpc{i} = binvar(2,1);
     constraints = [constraints, sum(pt_mpc{i}) <= 1];
     constraints = [constraints, sum(pt_mpc{i}) >= 1];
     constraints = [constraints, rt_mpc(i) <= rt_phi_alw(i)];
-    constraints = [constraints, rt_mpc(i) <= rt_impl(i)];
+    constraints = [constraints, rt_mpc(i) <= rt_psi_even(i)];
     constraints = [constraints, rt_phi_alw(i) - (1 - pt_mpc{i}(1))*M <= rt_mpc(i)];
     constraints = [constraints, rt_mpc(i) <= rt_phi_alw(i) + M*(1 - pt_mpc{i}(1))];
-    constraints = [constraints, rt_impl(i) - (1 - pt_mpc{i}(2))*M <= rt_mpc(i)];
-    constraints = [constraints, rt_mpc(i) <= rt_impl(i) + M*(1 - pt_mpc{i}(2))];
+    constraints = [constraints, rt_psi_even(i) - (1 - pt_mpc{i}(2))*M <= rt_mpc(i)];
+    constraints = [constraints, rt_mpc(i) <= rt_psi_even(i) + M*(1 - pt_mpc{i}(2))];
     
 end
 
@@ -236,7 +239,7 @@ obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
                 q_bar'*x_bar + r_bar'*u_bar;
 
 %%% CALL SOLVER %%%
-optimize(constraints, obj_fun, sdpsettings('solver','gurobi'))
+optimize(constraints, obj_fun, sdpsettings('solver','gurobi'));
 u_opt = value(u_bar);
 
 end
