@@ -82,7 +82,7 @@ function Output(block)
   hu = [j_ub; j_ub; -j_lb; -j_lb];
   
   % create acceleration signal 
-  signal = ((time_step):(time_step+mdl.mpc_H) > 15);
+  signal = ((time_step):(time_step+mdl.mpc_H) > 2);
   time_step = time_step + 1;
   
   if(time_step < mdl.mpc_H)
