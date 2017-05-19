@@ -91,7 +91,7 @@ function Output(block)
       
       % transient phase of MPC
       mdl.mpc_P(time_step + 1) = 0;
-      [v_opt, zt_next] = open_loop_star1(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+      [v_opt, ~] = open_loop_star1(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
       v_idx = (time_step*2 + 1):(time_step*2 + 2);
       delta_v = v_opt(v_idx);
@@ -104,14 +104,14 @@ function Output(block)
           mdl.ut_old(:, time_step + 1) = delta_v;
       end
       
-      if(size(ut_old,2) == H)
-          mdl.zt = zt_next;
+      if(size(mdl.ut_old,2) == mdl.mpc_H)
+          mdl.zt = z0;
       end
 
   else
       
       % create acceleration signal
-      signal = 2*((time_step):(time_step + mdl.mpc_H - 1) > 10) - 1;
+      signal = 2*((time_step - mdl.mpc_H):(time_step - 1) > 10) - 1;
       
       % initial state
       z0 = mdl.zt;
