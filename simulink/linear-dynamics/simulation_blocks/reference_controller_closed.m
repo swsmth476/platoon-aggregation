@@ -86,9 +86,12 @@ function Output(block)
       % create acceleration signal
       signal = 2*(1:mdl.mpc_H > 10) - 1;
       
+      % initial state
+      z0 = [mdl.z0; zeros(2,1)];
+      
       % transient phase of MPC
       mdl.mpc_P(time_step + 1) = 0;
-      v_opt = open_loop_star1(A,B,theta,zt,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+      v_opt = open_loop_star1(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
       v_idx = (time_step*2 + 1):(time_step*2 + 2);
       delta_v = v_opt(v_idx);
@@ -114,7 +117,7 @@ function Output(block)
       delta_v = v_opt(v_idx);
                             
       % store old inputs for next iteration
-      old_idx = 3:(mdl.mpc_H*2 + 3);
+      old_idx = 3:(mdl.mpc_H*2 + 2);
       mdl.ut_old = v_opt(old_idx);
       
   end

@@ -209,12 +209,12 @@ for i = 1:H
     constraints = [constraints, sum(pt_mpc{i}) <= 1];
     constraints = [constraints, sum(pt_mpc{i}) >= 1];
     constraints = [constraints, rt_mpc(i) <= rt_phi(i)];
-    constraints = [constraints, rt_mpc(i) <= rt_psi_even(i)];
+    constraints = [constraints, rt_mpc(i) <= rt_impl(i)];
     constraints = [constraints, rt_phi(i) - (1 - pt_mpc{i}(1))*M <= rt_mpc(i)];
     constraints = [constraints, rt_mpc(i) <= rt_phi(i) + M*(1 - pt_mpc{i}(1))];
-    constraints = [constraints, rt_psi_even(i) - (1 - pt_mpc{i}(2))*M <= rt_mpc(i)];
-    constraints = [constraints, rt_mpc(i) <= rt_psi_even(i) + M*(1 - pt_mpc{i}(2))];
-    
+    constraints = [constraints, rt_impl(i) - (1 - pt_mpc{i}(2))*M <= rt_mpc(i)];
+    constraints = [constraints, rt_mpc(i) <= rt_impl(i) + M*(1 - pt_mpc{i}(2))];
+
 end
 
 % robustness_margin should be adjusted based on maximum error
