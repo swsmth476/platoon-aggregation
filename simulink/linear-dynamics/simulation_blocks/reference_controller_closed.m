@@ -96,10 +96,11 @@ function Output(block)
       mdl.ut_old = [mdl.ut_old, delta_v];
       
   else
-%       % stationary phase of MPC
-%       v_opt = open_loop_star1(A,B,theta,z,mdl.STL_H,Q,Qf,q,qf,R,r, ...
-%                                 Hu,hu,zeros(mdl.STL_H,1),ut_old);
-%       
+      
+      % stationary phase of MPC
+      v_opt = open_loop_star1(A,B,theta,z,mdl.STL_H,Q,Qf,q,qf,R,r, ...
+                                Hu,hu,zeros(mdl.STL_H,1),ut_old,signal);
+      
   end
   
   % implement input
