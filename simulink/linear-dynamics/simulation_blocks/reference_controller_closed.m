@@ -115,7 +115,7 @@ function Output(block)
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
       v_idx = (mdl.mpc_H*2 + 1):(mdl.mpc_H*2 + 2);
       delta_v = v_opt(v_idx);
-                            
+
       % store old inputs for next iteration
       old_idx = 3:(mdl.mpc_H*2 + 2);
       mdl.ut_old = v_opt(old_idx);
