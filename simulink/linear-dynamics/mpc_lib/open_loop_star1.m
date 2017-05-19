@@ -1,4 +1,4 @@
-function u_opt = open_loop_star1(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_old,signal)
+function [u_opt, xt] = open_loop_star1(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_old,signal)
 %%% Summary %%%
 % Open loop controller to be called by closed loop MPC
 
@@ -241,6 +241,9 @@ obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
 %%% CALL SOLVER %%%
 optimize(constraints, obj_fun, sdpsettings('solver','gurobi'));
 u_opt = value(u_bar);
+
+% output initial condition for next iteration, if needed
+xt = value(x{1});
 
 end
 

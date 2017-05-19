@@ -116,6 +116,7 @@ M = 1e4;
 mdl.mpc_H = 20;
 mdl.mpc_P = -M*ones(mdl.mpc_H,1);
 mdl.ut_old = [];
+mdl.zt = [];
 
 %%% OPEN LOOP CONTROLLER %%%
 
