@@ -111,35 +111,41 @@ mdl.H = [0 1 0 0;
         0 0 0 1];
 mdl.wg = [30; 150; 30];
 
+%%% CLOSED LOOP CONTROLLER VARIABLES %%%
+% M = 1e4;
+% mdl.mpc_H = 35;
+% mdl.mpc_P = -M*ones(35,1);
+% mdl.ut_old = zeros(2,mdl.mpc_H);
+
 %%% OPEN LOOP CONTROLLER TEST %%%
 
-% % create augmented system dynamics
-% A = [[mdl.Fd mdl.Gd]; zeros(2,4) eye(2)];
-% B = [zeros(4,2); eye(2)];
-% theta = [mdl.theta_hatd; zeros(2,1)];
-% 
-% % augmented initial state
-% z0 = [mdl.z0; zeros(2,1)];
-% 
-% % choose augmented system state/input costs
-% Q = zeros(6);
-% Qf = zeros(6);
-% q = zeros(6,1);
-% qf = zeros(6,1);
-% R = eye(2);
-% r = zeros(2,1);
-% 
-% % jerk constraints
-% j_ub = 0.2;
-% j_lb = -0.2;
-% 
-% % input constraints
-% Hu = [eye(2); -eye(2)];
-% hu = [j_ub; j_ub; -j_lb; -j_lb];
-% 
-% % run open-loop MPC test
-% T = 75;
-% mdl.u_opt = open_loop_MPC(A, B, theta, z0, T, ...
-%                         Q, Qf, q, qf, R, r, Hu, hu);
+% create augmented system dynamics
+A = [[mdl.Fd mdl.Gd]; zeros(2,4) eye(2)];
+B = [zeros(4,2); eye(2)];
+theta = [mdl.theta_hatd; zeros(2,1)];
+
+% augmented initial state
+z0 = [mdl.z0; zeros(2,1)];
+
+% choose augmented system state/input costs
+Q = zeros(6);
+Qf = zeros(6);
+q = zeros(6,1);
+qf = zeros(6,1);
+R = eye(2);
+r = zeros(2,1);
+
+% jerk constraints
+j_ub = 0.2;
+j_lb = -0.2;
+
+% input constraints
+Hu = [eye(2); -eye(2)];
+hu = [j_ub; j_ub; -j_lb; -j_lb];
+
+% run open-loop MPC test
+T = 75;
+mdl.u_opt = open_loop_MPC(A, B, theta, z0, T, ...
+                        Q, Qf, q, qf, R, r, Hu, hu);
 
 end

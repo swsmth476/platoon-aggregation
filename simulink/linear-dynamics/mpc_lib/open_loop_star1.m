@@ -1,4 +1,4 @@
-function u_opt = open_loop_star1(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_old)
+function u_opt = open_loop_star1(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_old,signal)
 %%% Summary %%%
 % Open loop controller to be called by closed loop MPC
 
