@@ -111,7 +111,7 @@ function Output(block)
   else
       
       % create acceleration signal
-      signal = 2*((time_step - mdl.mpc_H):(time_step - 1) > 10) - 1;
+      signal = 2*((time_step - mdl.mpc_H + 1):(time_step) > 10) - 1;
       
       % initial state
       z0 = mdl.zt;
@@ -126,6 +126,7 @@ function Output(block)
       % store old inputs for next iteration
       old_idx = 3:(mdl.mpc_H*2 + 2);
       mdl.ut_old = v_opt(old_idx);
+      mdl.ut_old = reshape(mdl.ut_old, 2, mdl.mpc_H);
       
       % save starting state
       mdl.zt = zt_next;
