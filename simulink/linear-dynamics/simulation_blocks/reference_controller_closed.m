@@ -95,7 +95,7 @@ function Output(block)
       
       % transient phase of MPC
       mdl.mpc_P(time_step + 1) = 0;
-      [v_opt, ~] = open_loop_star1(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+      [v_opt, ~] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
       v_idx = (time_step*2 + 1):(time_step*2 + 2);
       delta_v = v_opt(v_idx);
@@ -124,7 +124,7 @@ function Output(block)
       % stationary phase of MPC
       mdl.mpc_P = zeros(mdl.mpc_H,1);
       % NOTE: can call "open_loop_star2( ... )" to simulate 2nd example
-      [v_opt, zt_next] = open_loop_star1(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+      [v_opt, zt_next] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
       v_idx = (mdl.mpc_H*2 + 1):(mdl.mpc_H*2 + 2);
       delta_v = v_opt(v_idx);

@@ -46,62 +46,14 @@ constraints = [constraints, Hu_bar*u_bar <= hu_bar];
 %%% STL_CONSTRAINTS %%%
 % (a quantitative STL encoding is used -
 %                  allows us to adjust robustness of formula satisfaction)
-%
-% STL formula predicates %
-% mu1: platoon headway lower bound
-% mu2: platoon headway upper bound
-% mu3: vehicle 1 accel upper bound
-% mu4: vehicle 1 accel lower bound
-% mu5: vehicle 2 accel upper bound
-% mu6: vehicle 2 accel lower bound
-% mu7: vehicle 1 target speed lower bound
-% mu8: vehicle 1 target speed upper bound
-% mu9: vehicle 2 target speed lower bound
-% mu10: vehicle 2 target speed upper bound
 
-num_pred = 10;
+% get predicates for intended formula
+[num_pred, mu_a, mu_b, num_phi, num_psi] = make_predicates1;
 
-% STL formula values %
-headway_des = 150;
-headway_delta = 5;
-headway_lb = headway_des - headway_delta;
-headway_ub = headway_des + headway_delta;
-vel_des = 30;
-vel_delta = 1;
-vel_lb = vel_des - vel_delta;
-vel_ub = vel_des + vel_delta;
-accel_bd = 8; % absolute value |accel| < accel_bd
-
-% introduce predicate variables
-% predicates are affine, of the form mu(x(i)) = a*x(i) + b %
 % rt_mu{i}(j) = predicate j at time index i = mu_j(x(i)) = a_j*x(i) + b_j
 for i = 1:T
     rt_mu{i} = sdpvar(num_pred,1);
 end
-
-% row 'j' represents 'a_j' from predicate mu_i(x(i))= a_j*x(i) + b_j
-mu_a = [1 0 -1 0 0 0;
-        -1 0 1 0 0 0;
-        0 0 0 0 1 0;
-        0 0 0 0 -1 0;
-        0 0 0 0 0 1;
-        0 0 0 0 0 -1;
-        0 1 0 0 0 0;
-        0 -1 0 0 0 0;
-        0 0 0 1 0 0;
-        0 0 0 -1 0 0];
-
-% row 'j' represents 'b_j' from predicate mu_i(x_t) = a_j*x(i) + b_j
-mu_b = [-headway_lb;
-        headway_ub;
-        accel_bd;
-        accel_bd;
-        accel_bd;
-        accel_bd;
-        -vel_lb;
-        vel_ub;
-        -vel_lb;
-        vel_ub];
 
 % set rt_mu(i) = mu_i(x_t) for each predicate, and time index
 for i = 1:T
@@ -118,10 +70,6 @@ end
 % variables for phi/psi formulas
 rt_phi = sdpvar(T,1);
 rt_psi = sdpvar(T,1);
-
-% number of conjunctions for each variable
-num_phi = 6;
-num_psi = 4;
 
 % NOTE: all the following constraints are simple negations, conjunctions,
 % and disjunctions of predicates, based on equations (3), (4), and (5) in 
