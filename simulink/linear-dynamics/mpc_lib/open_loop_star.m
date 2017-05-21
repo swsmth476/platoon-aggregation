@@ -3,9 +3,9 @@ function [u_opt, xt] = open_loop_star1(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_o
 % Open loop controller to be called by closed loop MPC
 
 %%% Description %%%
-% STL formula that is encoded is:
+% STL formula encoded is:
 %
-% always_[0,T] phi ^ (signal ==> eventually_[0,accel_bound] psi)
+% phi_mpc = phi ^ (signal ==> eventually_[0,H] psi)
 %
 % where phi encodes safety and input constraints
 % and psi encodes velocity constraints 
@@ -114,9 +114,6 @@ end
 % introduce two variables as the conjunctions of the predicates %
 % phi_t = mu_1(x_t) ^ mu_2(x_t) ^ ... ^ mu_6(x_t)
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
-
-% set acceleration requirement
-accel_time = 35;
 
 % variables for phi/psi formulas
 rt_phi = sdpvar(T,1);

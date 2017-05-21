@@ -81,10 +81,14 @@ function Output(block)
   Hu = [eye(2); -eye(2)];
   hu = [j_ub; j_ub; -j_lb; -j_lb];
   
+  % event trigger time (when the platoon is told to accelerate / increase
+  % headway)
+  event_trigger = 20; % (begin at 2s)
+  
   if(time_step < mdl.mpc_H)
       
       % create acceleration signal
-      signal = 2*(1:mdl.mpc_H > 10) - 1;
+      signal = 2*(1:mdl.mpc_H > event_trigger) - 1;
       
       % initial state
       z0 = [mdl.z0; zeros(2,1)];
@@ -104,6 +108,7 @@ function Output(block)
           mdl.ut_old(:, time_step + 1) = delta_v;
       end
       
+      % if at the end of transiet phase, save MPC starting save
       if(size(mdl.ut_old,2) == mdl.mpc_H)
           mdl.zt = z0;
       end
@@ -111,13 +116,14 @@ function Output(block)
   else
       
       % create acceleration signal
-      signal = 2*((time_step - mdl.mpc_H + 1):(time_step) > 10) - 1;
+      signal = 2*((time_step - mdl.mpc_H + 1):(time_step) > event_trigger) - 1;
       
       % initial state
       z0 = mdl.zt;
       
       % stationary phase of MPC
       mdl.mpc_P = zeros(mdl.mpc_H,1);
+      % NOTE: can call "open_loop_star2( ... )" to simulate 2nd example
       [v_opt, zt_next] = open_loop_star1(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
       v_idx = (mdl.mpc_H*2 + 1):(mdl.mpc_H*2 + 2);
@@ -133,7 +139,7 @@ function Output(block)
       
   end
   
-  % implement input
+  % implement input on system
   v = zt(5:6);
   block.OutputPort(1).Data = v + delta_v;
 
