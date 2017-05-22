@@ -104,11 +104,9 @@ for i = 1:T
     end
 end
 
-% introduce variable rt_phi_alw = always_[0,H] phi
 % introduce variable rt_psi_even = eventually_[0,H] psi
 % introduce variable rt_impl = signal ==> rt_psi_even (logical implies)
 % introduce variable rt_mpc = rt_phi_alw ^ rt_impl
-% rt_phi_alw = sdpvar(H,1);
 rt_psi_even = sdpvar(H,1);
 rt_impl = sdpvar(H,1);
 rt_mpc = sdpvar(H,1);
@@ -117,16 +115,6 @@ rt_mpc = sdpvar(H,1);
 n_sig = -signal;
 
 for i = 1:H
-    
-    % always
-%     pt_phi_alw{i} = binvar(H,1);
-%     constraints = [constraints, sum(pt_phi_alw{i}) <= 1];
-%     constraints = [constraints, sum(pt_phi_alw{i}) >= 1];
-%     for j = 1:H
-%         constraints = [constraints, rt_phi_alw(i) <= rt_phi(i+j-1)];
-%         constraints = [constraints, rt_phi(i+j-1) - (1 - pt_phi_alw{i}(j))*M <= rt_phi_alw(i)];
-%         constraints = [constraints, rt_phi_alw(i) <= rt_phi(i+j-1) + M*(1 - pt_phi_alw{i}(j))];
-%     end
     
     % eventually
     pt_psi_even{i} = binvar(H,1);
@@ -169,6 +157,8 @@ robustness_margin = 0;
 
 %%% ADDITIONAL CONSTRAINTS %%%
 % these constraints are added to the open_loop_MPC implementation
+% resulting in open_loop_star
+% which will be called by the closed loop reference controller
 for i = 1:H
     constraints = [constraints, rt_mpc(i) >= P(i) + robustness_margin];
 end
