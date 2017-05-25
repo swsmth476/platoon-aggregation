@@ -88,7 +88,7 @@ function Output(block)
   if(time_step < mdl.mpc_H)
       
       % create acceleration signal
-      signal = 2*(1:mdl.mpc_H >= event_trigger) - 1;
+      signal = 2*(1:mdl.mpc_H > event_trigger) - 1;
       
       % initial state
       z0 = [mdl.z0; zeros(2,1)];
@@ -116,7 +116,7 @@ function Output(block)
   else
       
       % create acceleration signal
-      signal = 2*((time_step - mdl.mpc_H + 1):(time_step) >= event_trigger) - 1;
+      signal = 2*((time_step - mdl.mpc_H + 1):(time_step) > event_trigger) - 1;
       
       % initial state
       z0 = mdl.zt;

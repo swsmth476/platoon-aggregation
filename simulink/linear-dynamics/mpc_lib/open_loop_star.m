@@ -1,4 +1,4 @@
-function [u_opt, xt] = open_loop_star1(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_old,signal)
+function [u_opt, xt] = open_loop_star(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_old,signal)
 %%% Summary %%%
 % Open loop controller to be called by closed loop MPC
 
@@ -48,7 +48,7 @@ constraints = [constraints, Hu_bar*u_bar <= hu_bar];
 %                  allows us to adjust robustness of formula satisfaction)
 
 % get predicates for intended formula
-[num_pred, mu_a, mu_b, num_phi, num_psi] = make_predicates1;
+[num_pred, mu_a, mu_b, num_phi, num_psi] = make_predicates2;
 
 % rt_mu{i}(j) = predicate j at time index i = mu_j(x(i)) = a_j*x(i) + b_j
 for i = 1:T
