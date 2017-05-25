@@ -85,16 +85,20 @@ temp = eye(12);
 e8 = temp(:,8);
 mdl.R = eye(2);
 mdl.W = [e8 mdl.B*mdl.R - mdl.P*mdl.G];
+
+% find bound on disturbance %
+headway_delta = 5; % (meters)
+input_max = 8; % (m/s^2)
+d_max = norm([headway_delta input_max input_max]');
     
 % linear state feedback, Lyapunov %
 
 lambda = .2; % decay rate that we want to achieve
 
 % find Lyapunov matrix M and linear feedback K to achieve this decay
-[mdl.M, mdl.K] = decay_rate(mdl.A, mdl.B, mdl.C, mdl.W, lambda);
-% mdl.K = L2_gain_K(mdl.A, mdl.B, eye(12), mdl.W);
-% [mdl.M, rate] = get_rate(mdl.A + mdl.B*mdl.K, mdl.C);
-% mdl.gain = cond(M)^2*lambda;
+% and minimize closed loop L-infinity gain (see Linf_gain_K)
+% [mdl.M, mdl.K] = decay_rate(mdl.A, mdl.B, mdl.C, mdl.W, lambda);
+[mdl.M, mdl.K] = Linf_gain_K(mdl.A, mdl.B, mdl.C, mdl.W, lambda, 1, d_max);
 
 % sanity check
 assert(min(eig(mdl.M - mdl.C'*mdl.C)) >= 0)
