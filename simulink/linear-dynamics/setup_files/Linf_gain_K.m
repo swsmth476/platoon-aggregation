@@ -45,6 +45,7 @@ cnstr = [cnstr, M_bar <= -t*eye(size(M_bar))];
 % call solver
 bisection(cnstr, t, sdpsettings('solver','mosek'));
 
+% get lyapunov and feedback matrices
 M = inv(value(M_bar));
 K = value(K_bar)*M;
 

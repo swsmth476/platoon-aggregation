@@ -48,7 +48,7 @@ constraints = [constraints, Hu_bar*u_bar <= hu_bar];
 %                  allows us to adjust robustness of formula satisfaction)
 
 % get predicates for intended formula
-[num_pred, mu_a, mu_b, num_phi, num_psi] = make_predicates2;
+[num_pred, mu_a, mu_b, num_phi, num_psi] = make_predicates1;
 
 % rt_mu{i}(j) = predicate j at time index i = mu_j(x(i)) = a_j*x(i) + b_j
 for i = 1:T

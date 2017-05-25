@@ -7,7 +7,7 @@ function concrete_controller(block)
 function setup(block)
   
   %% Register number of input and output ports
-  block.NumInputPorts  = 2;
+  block.NumInputPorts  = 3;
   block.NumOutputPorts = 2;
 
   %% Setup functional port properties to dynamically
@@ -20,6 +20,9 @@ function setup(block)
   
   block.InputPort(2).Dimensions        = 4;
   block.InputPort(2).DirectFeedthrough = false;
+  
+  block.InputPort(3).Dimensions        = 2;
+  block.InputPort(3).DirectFeedthrough = false;
   
   block.OutputPort(1).Dimensions       = 12; 
   block.OutputPort(2).Dimensions       = 2;
@@ -59,12 +62,12 @@ function Output(block)
   
   x = block.InputPort(1).Data;
   z = block.InputPort(2).Data;
-  % v = block.InputPort(3).Data;
+  v = block.InputPort(3).Data;
   
   % possibly change later to include R & Q terms as in Girardi paper
 
   e = x - mdl.P*z - mdl.omega; % relative error
   block.OutputPort(1).Data = e;
-  block.OutputPort(2).Data = mdl.K*e;
+  block.OutputPort(2).Data = mdl.R*v + mdl.K*e;
   
 %endfunction
