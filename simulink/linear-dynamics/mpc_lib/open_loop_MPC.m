@@ -63,11 +63,11 @@ headway_des = 150;
 headway_delta = 5;
 headway_lb = headway_des - headway_delta;
 headway_ub = headway_des + headway_delta;
-vel_des = 30;
+vel_des = 28;
 vel_delta = 1;
 vel_lb = vel_des - vel_delta;
 vel_ub = vel_des + vel_delta;
-accel_bd = 8; % absolute value |accel| < accel_bd
+accel_bd = 5; % absolute value |accel| < accel_bd
 
 % introduce predicate variables
 % predicates are affine, of the form mu(x(i)) = a*x(i) + b %
@@ -113,7 +113,7 @@ end
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
 
 % set acceleration requirement
-accel_time = 20;
+accel_time = 40;
 
 % variables for phi/psi formulas
 rt_phi = sdpvar(T,1);

@@ -56,7 +56,6 @@ function Output(block)
       z = [mdl.z0; zeros(2,1)]; % set to initial state
   end
   
-
   v = z(5:6);
   
   % find time step index and use lookup table to select input
@@ -65,6 +64,11 @@ function Output(block)
   indices = (time_step*2 + 1):(time_step*2 + 2);
   delta_v = mdl.u_opt(indices);
   
-  block.OutputPort(1).Data = v + delta_v;
+  % in order to prevent input jumps
+  if(time_step == 0 && mdl.init == 0)
+    mdl.init = 1;
+  else 
+    block.OutputPort(1).Data = v + delta_v;
+  end
 
 %endfunction

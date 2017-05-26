@@ -1,4 +1,4 @@
-function [M, K] = decay_rate(A, B, C, F, rate)
+function [M, K] = decay_rate(A, B, C, rate)
 % Find Lyapunov matrix M and state feedback K to achieve a decay rate
 % specified by the function input rate, i.e.
 % 

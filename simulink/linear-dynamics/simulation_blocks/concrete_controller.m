@@ -63,8 +63,6 @@ function Output(block)
   x = block.InputPort(1).Data;
   z = block.InputPort(2).Data;
   v = block.InputPort(3).Data;
-  
-  % possibly change later to include R & Q terms as in Girardi paper
 
   e = x - mdl.P*z - mdl.omega; % relative error
   block.OutputPort(1).Data = e;

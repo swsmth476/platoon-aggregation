@@ -1,4 +1,4 @@
-function [M, K, e_max] = Linf_gain_K(A, B, C, F, rate, val_max, d_max)
+function [M, K, e_max] = Linf_gain_K(A, B, F, rate, val_max, d_max)
 % Consider dynamics of the form
 %
 % d/dt e = (A + B*K)*e + F*d
@@ -21,10 +21,6 @@ M_bar = sdpvar(12,12,'symmetric');
 K_bar = sdpvar(2,12);
 
 % add constraint (1)
-k = size(C,1);
-% G = [M_bar, M_bar*C';
-%     C*M_bar, eye(k)];
-% cnstr = [G >= 0];
 epsilon = 1e-5;
 cnstr = [M_bar >= epsilon*eye(size(M_bar))];
 
