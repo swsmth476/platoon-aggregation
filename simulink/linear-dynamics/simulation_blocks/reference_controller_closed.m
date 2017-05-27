@@ -74,8 +74,8 @@ function Output(block)
   r = zeros(2,1);
   
   % jerk constraints
-  j_ub = 0.4;
-  j_lb = -0.4;
+  j_ub = 0.3;
+  j_lb = -0.3;
   
   % input constraints
   Hu = [eye(2); -eye(2)];

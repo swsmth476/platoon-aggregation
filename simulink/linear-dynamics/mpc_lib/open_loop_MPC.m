@@ -113,7 +113,7 @@ end
 % psi_t = mu_7(x_t) ^ mu_8(x_t) ^ mu_9(x_t) ^ mu_10(x_t)
 
 % set acceleration requirement
-accel_time = 40;
+accel_time = 20;
 
 % variables for phi/psi formulas
 rt_phi = sdpvar(T,1);

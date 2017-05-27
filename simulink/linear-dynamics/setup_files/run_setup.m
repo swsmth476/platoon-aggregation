@@ -120,7 +120,7 @@ mdl.init = 0;
 
 %%% CLOSED LOOP CONTROLLER %%%
 M = 1e4;
-mdl.mpc_H = 40;
+mdl.mpc_H = 20;
 mdl.mpc_P = -M*ones(mdl.mpc_H,1);
 mdl.ut_old = [];
 mdl.zt = [];
@@ -144,8 +144,8 @@ R = eye(2);
 r = zeros(2,1);
 
 % jerk constraints
-j_ub = 0.15;
-j_lb = -0.15;
+j_ub = 0.3;
+j_lb = -0.3;
 
 % input constraints
 Hu = [eye(2); -eye(2)];
