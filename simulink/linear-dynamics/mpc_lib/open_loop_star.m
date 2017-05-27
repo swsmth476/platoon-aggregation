@@ -172,9 +172,19 @@ end
 [Q_bar, q_bar, R_bar, r_bar] = make_QP_costs(T,Q,Qf,q,qf,R,r);
 obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
                 q_bar'*x_bar + r_bar'*u_bar;
+            
+%%% MILP OBJECTIVE FUNCTION %%%
+% By using this objective function, the optimization problem
+% will become a mixed integer linear program (MILP)
+t = sdpvar;
+for i = 1:T
+    constr = [constr, eye(m)*u_bar{i} <= t*ones(m,1)];
+    constr = [constr, -eye(m)*u_bar{i} <= t*ones(m,1)];
+end
+obj_fun_milp = t;
 
 %%% CALL SOLVER %%%
-optimize(constraints, obj_fun, sdpsettings('solver','gurobi'));
+optimize(constraints, obj_fun_milp, sdpsettings('solver','gurobi'));
 u_opt = value(u_bar);
 
 % output initial condition for next iteration, if needed

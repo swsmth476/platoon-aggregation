@@ -30,7 +30,7 @@ headway_lb = headway_des - headway_delta;
 headway_ub = headway_des + headway_delta;
 vel_lb = vel_des - vel_delta;
 vel_ub = vel_des + vel_delta;
-accel_bd = 5; % absolute value |accel| < accel_bd
+accel_bd = 3.5; % absolute value |accel| < accel_bd
 
 % introduce predicate variables
 % predicates are affine, of the form mu(x(i)) = a*x(i) + b %

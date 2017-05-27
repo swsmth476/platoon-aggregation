@@ -87,7 +87,7 @@ mdl.R = eye(2);
 mdl.W = [e8 mdl.B*mdl.R - mdl.P*mdl.G];
 % find bound on disturbance %
 headway_delta = 5; % (meters)
-input_max = 5; % (m/s^2)
+input_max = 3.5; % (m/s^2)
 d_max = norm([headway_delta input_max input_max]')^2; % one for each vehicle
 
 % linear state feedback, Lyapunov %
