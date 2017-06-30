@@ -92,18 +92,15 @@ d_max = norm([headway_delta input_max input_max]')^2; % one for each vehicle
 
 % linear state feedback, Lyapunov %
 
-rate = 0.005; % decay rate that we want to achieve
-
 % find Lyapunov matrix M and linear feedback K to achieve this decay
 % and minimize closed loop L-infinity gain (see Linf_gain_K)
 [mdl.M, mdl.K, mdl.e_max] = ...
-    Linf_gain_K(mdl.A, mdl.B, mdl.W, rate, 1500, d_max);
-% [mdl.M, mdl.K] = decay_rate(mdl.A, mdl.B, mdl.C, rate);
+    Linf_gain_K(mdl.A, mdl.B, mdl.W, 1500, d_max);
 
 % sanity check
 % assert(min(eig(mdl.M - mdl.C'*mdl.C)) >= 0)
-assert(min(eig((mdl.A + mdl.B*mdl.K)'*mdl.M ...
-    + mdl.M*(mdl.A + mdl.B*mdl.K) + 2*rate*mdl.M)) <= 0)
+% assert(min(eig((mdl.A + mdl.B*mdl.K)'*mdl.M ...
+%    + mdl.M*(mdl.A + mdl.B*mdl.K) + 2*rate*mdl.M)) <= 0)
 
 % initial states %
 mdl.x0 = [300; 25; 250; 25; 200; 25; 150; 25; 100; 25; 50; 25];
@@ -153,7 +150,7 @@ hu = [j_ub; j_ub; -j_lb; -j_lb];
 
 % run open-loop MPC test
 T = 75;
-mdl.u_opt = open_loop_MPC(A, B, theta, z0, T, ...
-                        Q, Qf, q, qf, R, r, Hu, hu);
+% mdl.u_opt = open_loop_MPC(A, B, theta, z0, T, ...
+%                        Q, Qf, q, qf, R, r, Hu, hu);
 
 end

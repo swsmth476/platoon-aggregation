@@ -21,7 +21,7 @@ num_pred = 10;
 
 % STL formula values %
 headway_des = 150;
-headway_delta = 5;
+headway_delta = .5;
 vel_des = 28;
 vel_delta = 1;
 
