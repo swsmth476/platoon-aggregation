@@ -117,7 +117,8 @@ mdl.init = 0;
 
 %%% CLOSED LOOP CONTROLLER %%%
 M = 1e4;
-mdl.mpc_H = 20;
+% change mpc_H to 20 for 1st example, to 30 for 2nd example
+mdl.mpc_H = 35;
 mdl.mpc_P = -M*ones(mdl.mpc_H,1);
 mdl.ut_old = [];
 mdl.zt = [];
@@ -149,7 +150,7 @@ Hu = [eye(2); -eye(2)];
 hu = [j_ub; j_ub; -j_lb; -j_lb];
 
 % run open-loop MPC test
-T = 75;
+% T = 75;
 % mdl.u_opt = open_loop_MPC(A, B, theta, z0, T, ...
 %                        Q, Qf, q, qf, R, r, Hu, hu);
 

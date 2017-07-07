@@ -95,10 +95,16 @@ function Output(block)
       
       % transient phase of MPC
       mdl.mpc_P(time_step + 1) = 0;
-      [v_opt, ~] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+      
+      % only compute when signal goes high
+      if(time_step >= 20)
+        [v_opt, ~] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
-      v_idx = (time_step*2 + 1):(time_step*2 + 2);
-      delta_v = v_opt(v_idx);
+        v_idx = (time_step*2 + 1):(time_step*2 + 2);
+        delta_v = v_opt(v_idx);
+      else
+          delta_v = [0; 0];
+      end    
       
       % store old inputs for next iteration
       % conditionals necessary because simulink repeats some initial time steps
@@ -123,11 +129,17 @@ function Output(block)
       
       % stationary phase of MPC
       mdl.mpc_P = zeros(mdl.mpc_H,1);
-      % NOTE: can call "open_loop_star2( ... )" to simulate 2nd example
-      [v_opt, zt_next] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
-                                    Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
-      v_idx = (mdl.mpc_H*2 + 1):(mdl.mpc_H*2 + 2);
-      delta_v = v_opt(v_idx);
+      
+      % only compute when signal goes high
+      if(time_step >= 20)
+        [v_opt, zt_next] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+                                        Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
+        v_idx = (mdl.mpc_H*2 + 1):(mdl.mpc_H*2 + 2);
+        delta_v = v_opt(v_idx);
+      else
+          v_opt = [0; 0];
+          zt_next = z0; % should be the same?
+      end
 
       % store old inputs for next iteration
       old_idx = 3:(mdl.mpc_H*2 + 2);
