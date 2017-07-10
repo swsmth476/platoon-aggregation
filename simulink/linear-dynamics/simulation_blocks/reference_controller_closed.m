@@ -66,12 +66,15 @@ function Output(block)
   theta = [mdl.theta_hatd; zeros(2,1)];
   
   % choose augmented system state/input costs
-  Q = zeros(6);
-  Qf = zeros(6);
+  % Q = zeros(6);
+  Q = blkdiag(zeros(4), eye(2));
+  % Qf = zeros(6);
+  Qf = blkdiag(zeros(4), eye(2));
   q = zeros(6,1);
   qf = zeros(6,1);
-  R = eye(2);
+  R = .1*eye(2);
   r = zeros(2,1);
+  % R = zeros(2);
   
   % jerk constraints
   j_ub = 0.3;
@@ -97,7 +100,7 @@ function Output(block)
       mdl.mpc_P(time_step + 1) = 0;
       
       % only compute when signal goes high
-      if(time_step >= 20)
+      if(time_step >= 19)
         [v_opt, ~] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
                                     Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
         v_idx = (time_step*2 + 1):(time_step*2 + 2);

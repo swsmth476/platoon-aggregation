@@ -23,7 +23,7 @@ num_pred = 10;
 headway_des = 165;
 headway_delta = 5;
 vel_des = 25;
-vel_delta = 7.5;
+vel_delta = 5;
 
 % state bounds
 headway_lb = headway_des - headway_delta;
