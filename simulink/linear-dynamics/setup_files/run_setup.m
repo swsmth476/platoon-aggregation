@@ -95,7 +95,7 @@ d_max = norm([headway_delta input_max input_max]')^2; % one for each vehicle
 % find Lyapunov matrix M and linear feedback K to achieve this decay
 % and minimize closed loop L-infinity gain (see Linf_gain_K)
 [mdl.M, mdl.K, mdl.e_max] = ...
-    Linf_gain_K(mdl.A, mdl.B, mdl.W, 1500, d_max);
+    Linf_gain_K(mdl.A, mdl.B, mdl.C, mdl.W, 1500, d_max);
 
 % sanity check
 % assert(min(eig(mdl.M - mdl.C'*mdl.C)) >= 0)
