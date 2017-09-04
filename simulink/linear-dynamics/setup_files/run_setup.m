@@ -86,7 +86,7 @@ e8 = temp(:,8);
 mdl.R = eye(2);
 mdl.W = [e8 mdl.B*mdl.R - mdl.P*mdl.G];
 % find bound on disturbance %
-headway_delta = 5; % (meters)
+headway_delta = 0.5; % (meters)
 input_max = 3.5; % (m/s^2)
 d_max = norm([headway_delta input_max input_max]')^2; % one for each vehicle
 
@@ -94,8 +94,12 @@ d_max = norm([headway_delta input_max input_max]')^2; % one for each vehicle
 
 % find Lyapunov matrix M and linear feedback K to achieve this decay
 % and minimize closed loop L-infinity gain (see Linf_gain_K)
+
+% for application 1: use val_max = 2000, alpha = 1
+% for application 2: use val_max = 2000*41, alpha = 1
+
 [mdl.M, mdl.K, mdl.e_max] = ...
-    Linf_gain_K(mdl.A, mdl.B, mdl.C, mdl.W, 1500, d_max);
+    Linf_gain_K(mdl.A, mdl.B, mdl.C, mdl.W, 2000, d_max);
 
 % sanity check
 % assert(min(eig(mdl.M - mdl.C'*mdl.C)) >= 0)
