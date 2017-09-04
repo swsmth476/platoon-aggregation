@@ -142,7 +142,7 @@ function Output(block)
       end
       
       % create acceleration signal
-      signal = 2*((time_step - mdl.mpc_H + 1):(time_step) > event_trigger) - 1;
+      signal = 2*((time_step - mdl.mpc_H + 2):(time_step + 1) > event_trigger) - 1;
       
       % initial state
       z0 = mdl.zt;
