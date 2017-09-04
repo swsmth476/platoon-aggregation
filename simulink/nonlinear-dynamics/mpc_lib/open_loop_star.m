@@ -191,7 +191,7 @@ end
 % slack variable is needed since nonlinear system cannot be
 % predicted exactly by discrete time model
 slack = sdpvar;
-constraints = [constraint, slack <= 0];
+constraints = [constraints, slack <= 0];
 
 %%% ADDITIONAL CONSTRAINTS %%%
 % these constraints are added to the open_loop_MPC implementation
