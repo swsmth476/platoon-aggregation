@@ -81,8 +81,8 @@ function Output(block)
   qf = zeros(4,1);
   
   % gain for input cost
-  gain = 150;
-  R = eye(2);
+  gain = 25;
+  R = gain*eye(2);
   r = zeros(2,1);
   
   % flux rate constraints
@@ -137,6 +137,10 @@ function Output(block)
 
   else
       
+      if(time_step == 36)
+          0;
+      end
+      
       % create acceleration signal
       signal = 2*((time_step - mdl.mpc_H + 1):(time_step) > event_trigger) - 1;
       
@@ -155,7 +159,7 @@ function Output(block)
       mdl.mpc_P = zeros(mdl.mpc_H,1);
       [v_opt, zt_next] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
           Hu,hu,mdl.mpc_P,mdl.ut_old,mdl.xt_old,signal);
-      v_idx = (mdl.mpc_H*2 + 1):(mdl.mpc_H*2 + 2);
+      v_idx = (mdl.mpc_H*2 + 3):(mdl.mpc_H*2 + 4);
       delta_v = v_opt(v_idx);
 
       % store inputs for next iteration

@@ -187,20 +187,25 @@ end
 % robustness_margin should be adjusted based on maximum error
 % between concrete and reference systems
 % (this will depend on the L-infinity gain of the feedback K)
-robustness_margin = 0.01;
+
+% slack variable is needed since nonlinear system cannot be
+% predicted exactly by discrete time model
+slack = sdpvar;
+constraints = [constraint, slack <= 0];
 
 %%% ADDITIONAL CONSTRAINTS %%%
 % these constraints are added to the open_loop_MPC implementation
 % resulting in open_loop_star
 % which will be called by the closed loop reference controller
 for i = 1:H
-    constraints = [constraints, rt_mpc(i) >= P(i) + robustness_margin];
+    constraints = [constraints, rt_mpc(i) >= P(i) + slack];
 end
 
 %%% OBJECTIVE_FUNCTION %%%
+M = 1e4;
 [Q_bar, q_bar, R_bar, r_bar] = make_QP_costs(T,Q,Qf,q,qf,R,r);
 obj_fun = 1/2*(x_bar'*Q_bar*x_bar + u_bar'*R_bar*u_bar) + ...
-                q_bar'*x_bar + r_bar'*u_bar;
+                q_bar'*x_bar + r_bar'*u_bar - M*slack;
 
 %%% CALL SOLVER %%%
 optimize(constraints, obj_fun, sdpsettings('solver','gurobi'));
