@@ -54,17 +54,21 @@ end
 x_bar = [x_past; x_predict];
 u_bar = [u_past; u_predict];
 
-% require that past states/inputs are respected
+% require that past inputs are respected
 for i = 1:size(ut_old,2)
     constraints = [constraints, u{i} <= ut_old(:,i)];
     constraints = [constraints, u{i} >= ut_old(:,i)];
+end
+
+% require that past states are respected
+for i = 1:size(xt_old,2)
     constraints = [constraints, x{i} <= xt_old(:,i)];
     constraints = [constraints, x{i} >= xt_old(:,i)];
 end
 
 %%% UPDATE_CONSTRAINTS %%%
 % require that system updates satisfy x(t+1) = Ax(t) + Bu(t) + theta
-[G, L] = make_sys_constr(T-past_L, A, B, theta, x0);
+[G, L] = make_sys_constr(T-past_L, A, B, theta, xt_old(:,past_L));
 constraints = [constraints, x_predict <= G*u_predict + L];
 constraints = [constraints, x_predict >= G*u_predict + L];
 
