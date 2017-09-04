@@ -1,4 +1,4 @@
-function [u_opt, xt] = open_loop_star(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_old,signal)
+function [u_opt, xt] = open_loop_star(A,B,theta,x0,H,Q,Qf,q,qf,R,r,Hu,hu,P,ut_old,xt_old,signal)
 %%% Summary %%%
 % Open loop controller to be called by closed loop MPC
 
@@ -25,17 +25,48 @@ x_bar = []; % x = [x(t+1); x(t+2); ... x(t+T)]
 u_bar = []; % u = [u(t); u(t+1); ... u(t+T-1)] (both col vectors)
 
 % create state decision variables for each time index
-for i = 1:T
+
+% time horizon is split into previous time steps and future predictions
+past_L = size(xt_old, 2);
+
+% variables for each section of the time horizon
+x_past = [];
+u_past = [];
+x_predict = [];
+u_predict = [];
+
+% these are time steps that already happened
+for i = 1:past_L
     x{i} = sdpvar(n,1);
     u{i} = sdpvar(m,1);
-    x_bar = [x_bar; x{i}];
-    u_bar = [u_bar; u{i}];
+    x_past = [x_past; x{i}];
+    u_past = [u_past; u{i}];
 end
 
+for i = past_L+1:T
+    x{i} = sdpvar(n,1);
+    u{i} = sdpvar(m,1);
+    x_predict = [x_predict; x{i}];
+    u_predict = [u_predict; u{i}];
+end
+
+% concatenate the two sections of the time horizon
+x_bar = [x_past; x_predict];
+u_bar = [u_past; u_predict];
+
+% require that past states/inputs are respected
+for i = 1:size(ut_old,2)
+    constraints = [constraints, u{i} <= ut_old(:,i)];
+    constraints = [constraints, u{i} >= ut_old(:,i)];
+    constraints = [constraints, x{i} <= xt_old(:,i)];
+    constraints = [constraints, x{i} >= xt_old(:,i)];
+end
+
+%%% UPDATE_CONSTRAINTS %%%
 % require that system updates satisfy x(t+1) = Ax(t) + Bu(t) + theta
-[G, L] = make_sys_constr(T, A, B, theta, x0);
-constraints = [constraints, x_bar <= G*u_bar + L];
-constraints = [constraints, x_bar >= G*u_bar + L];
+[G, L] = make_sys_constr(T-past_L, A, B, theta, x0);
+constraints = [constraints, x_predict <= G*u_predict + L];
+constraints = [constraints, x_predict >= G*u_predict + L];
 
 %%% INPUT_CONSTRAINTS %%%
 % require that inputs satisfy Hu*u(t) <= hu for all t
@@ -160,11 +191,6 @@ robustness_margin = 0.01;
 % which will be called by the closed loop reference controller
 for i = 1:H
     constraints = [constraints, rt_mpc(i) >= P(i) + robustness_margin];
-end
-
-for i = 1:size(ut_old,2)
-    constraints = [constraints, u{i} <= ut_old(:,i)];
-    constraints = [constraints, u{i} >= ut_old(:,i)];
 end
 
 %%% OBJECTIVE_FUNCTION %%%
