@@ -28,7 +28,7 @@ mdl.P = [1 0;
         0 1];
 
 % set feedback gain
-feedback_gain = 1.5;
+feedback_gain = 2.5;
 mdl.K = -feedback_gain*eye(4);
 
 %%% CLOSED LOOP CONTROLLER %%%
