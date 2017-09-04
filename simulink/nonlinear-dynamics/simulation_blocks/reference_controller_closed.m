@@ -115,12 +115,10 @@ function Output(block)
       
       % transient phase of MPC
       mdl.mpc_P(time_step + 1) = 0;
-      %[v_opt, ~] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
-      %    Hu,hu,mdl.mpc_P,mdl.ut_old,mdl.xt_old,signal);
-      %v_idx = (time_step*2 + 1):(time_step*2 + 2);
-      %delta_v = v_opt(v_idx);
-
-      delta_v = [0; 0];
+      [v_opt, ~] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
+          Hu,hu,mdl.mpc_P,mdl.ut_old,mdl.xt_old,signal);
+      v_idx = (time_step*2 + 1):(time_step*2 + 2);
+      delta_v = v_opt(v_idx);
       
       % store old inputs for next iteration
       % conditionals necessary because simulink repeats some initial time steps
