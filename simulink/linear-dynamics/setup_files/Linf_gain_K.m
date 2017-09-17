@@ -1,4 +1,4 @@
-function [M, K, e_max] = Linf_gain_K(A, B, C, F, val_max, d_max)
+function [M, K, e_max] = Linf_gain_K(A, B, C, F, alpha)
 % Consider dynamics of the form
 %
 % d/dt e = (A + B*K)*e + F*d
@@ -17,17 +17,13 @@ function [M, K, e_max] = Linf_gain_K(A, B, C, F, val_max, d_max)
 M_bar = sdpvar(12,12,'symmetric');
 K_bar = sdpvar(2,12);
 
-% add output constraint
-k = size(C, 1);
-L = [M_bar M_bar*C';
-   C*M_bar eye(k)];
-cnstr = (L >= 0);
+% ensure M is positive definite
+cnstr = (M_bar >= 0);
 
 % add decay constraint
 k = size(F,2);
-alpha = 1;
 H = [A*M_bar + M_bar*A' + K_bar'*B' + B*K_bar + alpha*M_bar, F;
-    F', -alpha*val_max/d_max*eye(k)];
+    F', -alpha*eye(k)];
 cnstr = [cnstr, H <= 0];
 
 % add objective (maximize minimum eigenvalue)
@@ -43,6 +39,6 @@ K = value(K_bar)*M;
 
 % find bound
 lambda_min = min(eig(M));
-e_max = sqrt(val_max/lambda_min);
+e_max = sqrt(1/lambda_min);
 
 end
