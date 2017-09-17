@@ -88,7 +88,7 @@ mdl.W = [e8 mdl.B*mdl.R - mdl.P*mdl.G];
 % find bound on disturbance %
 headway_delta = 0.5; % (meters)
 input_max = 3.5; % (m/s^2)
-d_max = norm([headway_delta input_max input_max]')^2; % one for each vehicle
+d_max = norm([headway_delta input_max input_max]'); % one for each vehicle
 
 % linear state feedback, Lyapunov %
 
@@ -97,7 +97,7 @@ d_max = norm([headway_delta input_max input_max]')^2; % one for each vehicle
 
 alpha = .825;
 [mdl.M, mdl.K, mdl.e_max] = ...
-    Linf_gain_K(mdl.A, mdl.B, mdl.C, mdl.W, alpha);
+    Linf_gain_K(mdl.A, mdl.B, mdl.C, mdl.W*d_max, alpha);
 
 % sanity check
 % assert(min(eig(mdl.M - mdl.C'*mdl.C)) >= 0)
