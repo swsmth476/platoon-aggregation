@@ -68,6 +68,6 @@ function Output(block)
 
   e = x - mdl.P*z; % relative error
   block.OutputPort(1).Data = e;
-  block.OutputPort(2).Data = mdl.K*e;
+  block.OutputPort(2).Data = mdl.P*v + mdl.K*e;
   
 %endfunction
