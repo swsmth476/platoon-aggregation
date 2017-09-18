@@ -67,9 +67,9 @@ function Output(block)
   
   % choose augmented system state/input costs
   % Q = zeros(6);
-  Q = blkdiag(zeros(4), eye(2));
+  Q = zeros(6);
   % Qf = zeros(6);
-  Qf = blkdiag(zeros(4), eye(2));
+  Qf = zeros(6);
   q = zeros(6,1);
   qf = zeros(6,1);
   R = eye(2);
