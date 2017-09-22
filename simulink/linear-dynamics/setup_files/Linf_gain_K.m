@@ -28,10 +28,10 @@ cnstr = [cnstr, H <= 0];
 
 % add objective (maximize minimum eigenvalue)
 t = sdpvar;
-cnstr = [cnstr, M_bar <= -t*eye(size(M_bar))];
+cnstr = [cnstr, M_bar <= t*eye(size(M_bar))];
 
 % bisection(cnstr, t, sdpsettings('solver','mosek'));
-bisection(cnstr, t, sdpsettings('solver','mosek'));
+optimize(cnstr, t, sdpsettings('solver','mosek'));
 
 % get lyapunov and feedback matrices
 M = inv(value(M_bar));
