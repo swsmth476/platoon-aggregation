@@ -1,4 +1,4 @@
-function platoon_ref(block)
+function platoon_ref_v2(block)
 
   setup(block);
   
@@ -69,7 +69,7 @@ function Derivative(block)
     dz = zeros(4,1);
     dz(1) = z(2); % position a
     dz(2) = mdl.v_0 - z(2) - mdl.rho*z(2)^2/mdl.m + v(1); % velocity a
-    dz(3) = x(4); % position b
+    dz(3) = z(4); % position b
     dz(4) = mdl.v_0 - z(4) - mdl.rho*z(4)^2/mdl.m + v(2); % velocity b
 
     block.Derivatives.Data = dz;

@@ -1,4 +1,4 @@
-function reference_controller(block)
+function reference_controller_v2(block)
 
   setup(block);
   
@@ -60,10 +60,20 @@ function Output(block)
   dt = 0.1;
   time_step = floor(time/dt);
   
+  % get current velocities
+  v1 = zt(2);
+  v2 = zt(4);
+  
+  % use current velocity
+  syms va vb;
+  Ad = double(subs(mdl.Ad, [va vb], [v1 v2]));
+  Bd = double(subs(mdl.Bd, [va vb], [v1 v2]));
+  Kd = double(subs(mdl.Kd, [va vb], [v1 v2])); % linearize around v
+  
   % create augmented system dynamics
-  A = [[mdl.Ad mdl.Bd]; zeros(2,4) eye(2)];
+  A = [[Ad Bd]; zeros(2,4) eye(2)];
   B = [zeros(4,2); eye(2)];
-  theta = [mdl.Kd; zeros(2,1)];
+  theta = [Kd; zeros(2,1)];
   
   % choose augmented system state/input costs
   % Q = zeros(6);

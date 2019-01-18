@@ -1,4 +1,4 @@
-function concrete_controller(block)
+function concrete_controller_v2(block)
 
   setup(block);
   
@@ -52,7 +52,7 @@ function SetInpPortFrameData(block, idx, fd)
 %endfunction
 
 function InitConditions(block) 
-  block.OutputPort(1).Data = zeros(12,1);
+  block.OutputPort(1).Data = zeros(8,1);
   block.OutputPort(2).Data = [0; 0];
   
 %endfunction

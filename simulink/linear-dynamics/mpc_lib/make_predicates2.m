@@ -20,9 +20,9 @@ function [num_pred, mu_a, mu_b, num_phi, num_psi] = make_predicates2
 num_pred = 10;
 
 % STL formula values %
-headway_des = 165;
+headway_des = 115;
 headway_delta = 5;
-vel_des = 25;
+vel_des = 28;
 vel_delta = 5;
 
 % state bounds

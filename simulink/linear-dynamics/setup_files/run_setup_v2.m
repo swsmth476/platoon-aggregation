@@ -37,8 +37,8 @@ omega_sub = [0; 0; -mdl.dh; 0];
 mdl.omega = [omega_sub; omega_sub]; % constant part
 
 %%% initial states %%%
-mdl.x0 = [300; 28; 250; 28; 200; 28; 150; 28; 100; 28; 50; 28];
-mdl.z0 = [300; 28; 150; 28];
+mdl.x0 = [200; 28; 150; 28; 100; 28; 50; 28];
+mdl.z0 = [200; 28; 100; 28];
 
 %%% goal state for reference output %%%
 mdl.H = [0 1 0 0;
