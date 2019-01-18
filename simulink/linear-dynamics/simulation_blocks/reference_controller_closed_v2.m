@@ -61,9 +61,9 @@ function Output(block)
   time_step = floor(time/dt);
   
   % create augmented system dynamics
-  A = [[mdl.Fd mdl.Gd]; zeros(2,4) eye(2)];
+  A = [[mdl.Ad mdl.Bd]; zeros(2,4) eye(2)];
   B = [zeros(4,2); eye(2)];
-  theta = [mdl.theta_hatd; zeros(2,1)];
+  theta = [mdl.Kd; zeros(2,1)];
   
   % choose augmented system state/input costs
   % Q = zeros(6);

@@ -120,7 +120,7 @@ mdl.init = 0;
 %%% CLOSED LOOP CONTROLLER %%%
 M = 1e4;
 % change mpc_H to 20 for 1st example, to 30 for 2nd example
-mdl.mpc_H = 20;
+mdl.mpc_H = 30;
 mdl.mpc_P = -M*ones(mdl.mpc_H,1);
 mdl.ut_old = [];
 mdl.zt = [];
