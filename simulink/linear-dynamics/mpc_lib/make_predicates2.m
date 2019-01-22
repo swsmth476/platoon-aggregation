@@ -17,15 +17,19 @@ function [num_pred, mu_a, mu_b, num_phi, num_psi] = make_predicates2
 % mu10: platoon target headway upper bound
 
 % number of predicates in the formula
-num_pred = 10;
+num_pred = 12;
 
 % STL formula values %
-headway_des = 115;
+headway_des = 35;
 headway_delta = 5;
+headway_nominal = 20;
+headway_safety_bound = 20;
 vel_des = 28;
 vel_delta = 5;
 
 % state bounds
+headway_safe_lb = headway_nominal - headway_safety_bound;
+headway_safe_ub = headway_nominal + headway_safety_bound;
 headway_lb = headway_des - headway_delta;
 headway_ub = headway_des + headway_delta;
 vel_lb = vel_des - vel_delta;
@@ -45,6 +49,8 @@ mu_a = [0 1 0 0 0 0;
         0 0 0 0 0 1;
         0 0 0 0 0 -1;
         1 0 -1 0 0 0;
+        -1 0 1 0 0 0;
+        1 0 -1 0 0 0;
         -1 0 1 0 0 0];
 
 % row 'j' represents 'b_j' from predicate mu_i(x_t) = a_j*x(i) + b_j
@@ -56,11 +62,13 @@ mu_b = [-vel_lb;
         accel_bd;
         accel_bd;
         accel_bd;
+        -headway_safe_lb;
+        headway_safe_ub;
         -headway_lb;
         headway_ub];
     
 % number of conjunctions for each variable
-num_phi = 8;
+num_phi = 10;
 num_psi = 2;
 
 end

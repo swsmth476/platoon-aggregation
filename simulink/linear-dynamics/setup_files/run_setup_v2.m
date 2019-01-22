@@ -3,7 +3,7 @@ function mdl = run_setup_v2
 
 %%% model parameters %%%
 mdl.v_0 = 28;
-mdl.dh = 50; % desired headway
+mdl.dh = 10; % desired headway
 mdl.k = 5; % gain for spring
 mdl.rho = 0.3245; % drag coefficient
 mdl.m = 1722; % vehicle mass
@@ -37,14 +37,14 @@ omega_sub = [0; 0; -mdl.dh; 0];
 mdl.omega = [omega_sub; omega_sub]; % constant part
 
 %%% initial states %%%
-mdl.x0 = [200; 28; 150; 28; 100; 28; 50; 28];
-mdl.z0 = [200; 28; 100; 28];
+mdl.x0 = [40; 28; 30; 28; 20; 28; 10; 28];
+mdl.z0 = [40; 28; 20; 28];
 
 %%% goal state for reference output %%%
-mdl.H = [0 1 0 0;
-        1 0 -1 0;
-        0 0 0 1];
-mdl.wg = [30; 150; 30];
+% mdl.H = [0 1 0 0;
+%         1 0 -1 0;
+%         0 0 0 1];
+% mdl.wg = [30; 150; 30];
 
 % for simulink initialization
 mdl.init = 0;
