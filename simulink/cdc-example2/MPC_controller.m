@@ -95,7 +95,7 @@ function Output(block)
     r = zeros(2,1);
     % final state cost
     x_des = [50; 0; 0];
-    Qf = eye(3);
+    Qf = diag([1; 1; 0]);
     qf = -x_des;
     
     %%% SET UP PROBLEM %%%
