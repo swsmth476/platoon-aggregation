@@ -87,7 +87,7 @@ function Output(block)
     hu = [15; 2*pi/5; 0; 0];
     % input rate constraints
     Hr = [eye(2); -eye(2)];
-    hr = [15/100; 2*pi/10; -15/100; -2*pi/10];
+    hr = [15/100; 2*pi/10; 15/100; 2*pi/10];
     % cost weights
     Q = zeros(3,3);
     q = zeros(3,1);
@@ -105,7 +105,7 @@ function Output(block)
     slack = sdpvar;
     % add constraints
     constraints = (x{1} == x1);
-    cosntraints = [constraints, slack >= 0];
+    constraints = [constraints, slack >= 0];
     for i = 1:T
         % obj fun
         obj_fun = obj_fun + (1/2)*(x{i}'*Q*x{i} + u{i}'*R*u{i}) + q'*x{i} + r'*u{i};
@@ -113,10 +113,10 @@ function Output(block)
         constraints = [constraints, x{i+1} == x{i} + dt*f_car_approx(x{i}, u{i})];
         if(i == 1)
             % input rate constraints (must be hard constraint)
-            constraints = [constraints, max(Hr*(u{1} - u0) - hr) - slack <= 0];
+            constraints = [constraints, Hr*(u{1} - u0) - hr <= 0];
         else
             % input rate constraints (must be hard constraint)
-            constraints = [constraints, max(Hr*(u{i} - u{i-1}) - hr) - slack <= 0];
+            constraints = [constraints, Hr*(u{i} - u{i-1}) - hr <= 0];
         end
         % state & input constraints
         constraints = [constraints, max(Hx*x{i} - hx) - slack <= 0]; % add slack variable
