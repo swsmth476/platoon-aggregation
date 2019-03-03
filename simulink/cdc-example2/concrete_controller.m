@@ -51,10 +51,18 @@ function Output(block)
     
     % problem parameters
     % samping time
-    dt = 0.2;
+    dt = 0.1;
+    % input rate constraints
+    vel_rate = 0.25;
+    turn_rate = pi/50;
     % obstacles
-    xc = [20; 10];
-    radius = 5;
+    obs = cell(2,1);
+    A1 = [eye(2); -eye(2)];
+    b1 = [25; 50; 0; -25];
+    A2 = [eye(2); -eye(2)];
+    b2 = [45; 15; -15; 0];
+    obs{1} = Polyhedron('A', A1, 'b', b1);
+    obs{2} = Polyhedron('A', A2, 'b', b2);
     
     %%% DECISION VARIABLES %%%
     T = 30; % time horizon
@@ -67,7 +75,6 @@ function Output(block)
         u{i} = sdpvar(m,1);
     end
     x{T+1} = sdpvar(n,1);
-    slack = sdpvar(1,1);
     
     %%% CONSTRAINTS & COST WEIGHTS %%%
     % state constraints
@@ -82,16 +89,16 @@ function Output(block)
     Hr = [eye(2); -eye(2)];
     hr = [15/20; 2*pi/10; 15/20; 2*pi/10];
     % cost weights
-    Q = (1e-4)*eye(3,3);
+    Q = zeros(3,3);
     q = zeros(3,1);
     R = (1e-4)*eye(2,2);
     r = zeros(2,1);
     % final state cost
     x_des = [50; 0; 0];
-    Qf = (1e-4)*eye(3,3);
+    Qf = diag([1; 1; 0]);
     qf = -x_des;
     % input rate penalty
-    alpha = 1e-4;
+    alpha = 1e-5;
     
     %%% SET UP PROBLEM %%%
     % obj fun
@@ -102,7 +109,7 @@ function Output(block)
     constraints = (x{1} == x1);
     for i = 1:T
         % obj fun
-        obj_fun = obj_fun + (1/2)*((x{i}-x_des)'*Q*(x{i}-x_des) + u{i}'*R*u{i}) + q'*x{i} + r'*u{i};
+        obj_fun = obj_fun + (1/2)*(x{i}'*Q*x{i} + u{i}'*R*u{i}) + q'*x{i} + r'*u{i};
         % dynamics constraints
         constraints = [constraints, x{i+1} == x{i} + dt*f_car_approx(x{i}, u{i})];
         if(i == 1)
@@ -118,10 +125,19 @@ function Output(block)
         % constraints = [constraints, max(Hx*x{i} - hx) - slack <= 0]; % add slack variable
         constraints = [constraints, Hu*u{i} <= hu];
         % obstacle avoidence constraints
-        constraints = [constraints, (x{i+1}(1:2) - xc)'*(x{i+1}(1:2) - xc) >= (radius-slack)^2];
-        constraints = [constraints, slack >= 0, 2 >= slack];
+        % for j = 1:length(obs)
+            % A*x <= b representation of obstacles
+            % A = obs{j}.A;
+            % b = obs{j}.b;
+            % assuming each obstacle has 4 sides
+            % constraints = [constraints, ( A(1,:)*x{j}(1:2) >= b(1,:) ...
+            %                            | A(2,:)*x{j}(1:2) >= b(2,:) ...
+            %                            | A(3,:)*x{j}(1:2) >= b(3,:) ...
+            %                            | A(4,:)*x{j}(1:2) >= b(4,:) ) ];
+        % end
     end
-    obj_fun = obj_fun + (1/2)*(x{T+1}-x_des)'*Qf*(x{T+1}-x_des) + slack^2;
+    % constraints = [constraints, Hxf*x{T+1} <= hxf];
+    obj_fun = obj_fun + (1/2)*x{T+1}'*Qf*x{T+1} + qf'*x{T+1};
     
     %%% CALL SOLVER %%%
     diagnostics = optimize(constraints, obj_fun, sdpsettings('solver', 'ipopt'));
