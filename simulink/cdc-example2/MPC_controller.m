@@ -131,13 +131,8 @@ function Output(block)
         disp('Some issue occurred with ipopt');
     end
     
-    % implement optimal control input on system (wait for 0.5s first)
-    if(current_time < 0.5)
-        u_opt = zeros(2,1);
-    else
-        u_opt = value(u{1});
-    end
-    
+    % implement optimal control input on system
+    u_opt = value(u{1}); 
     block.OutputPort(1).Data = u_opt;
 
 %endfunction
