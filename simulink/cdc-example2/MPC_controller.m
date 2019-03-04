@@ -6,7 +6,7 @@ function MPC_controller(block)
 
 function setup(block)
   %% Register number of input and output ports
-  block.NumInputPorts  = 3;
+  block.NumInputPorts  = 2;
   block.NumOutputPorts = 1;
 
   %% Setup functional port properties to dynamically
@@ -18,8 +18,6 @@ function setup(block)
   block.InputPort(1).DirectFeedthrough = false;
   block.InputPort(2).Dimensions = 2;
   block.InputPort(2).DirectFeedthrough = false;
-  block.InputPort(3).Dimensions = 1;
-  block.InputPort(3).DirectFeedthrough = false;
   
   block.OutputPort(1).Dimensions = 2;
   
@@ -50,7 +48,6 @@ function Output(block)
     %%% BLOCK INPUTS %%%
     x1 = block.InputPort(1).data; % initial state
     u0 = block.InputPort(2).data; % initial input
-    current_time = block.InputPort(3).data % simulation time
     
     % problem parameters
     % samping time
@@ -80,10 +77,10 @@ function Output(block)
     hxf = hx;
     % input constraints
     Hu = [eye(2); -eye(2)];
-    hu = [15; 2*pi/250; 0; 2*pi/250];
+    hu = [15; 2*pi/10; 0; 2*pi/10];
     % input rate constraints
     Hr = [eye(2); -eye(2)];
-    hr = [15/100; 2*pi/500; 15/100; 2*pi/500];
+    hr = [15/100; 2*pi/100; 15/100; 2*pi/100];
     % cost weights
     Q = (1e-4)*eye(3,3);
     q = zeros(3,1);
