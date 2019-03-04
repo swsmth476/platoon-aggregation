@@ -18,8 +18,8 @@ function setup(block)
   block.InputPort(1).DirectFeedthrough = false;
   block.InputPort(2).Dimensions = 2;
   block.InputPort(2).DirectFeedthrough = false;
-  block.InputPort(2).Dimensions = 3;
-  block.InputPort(2).DirectFeedthrough = false;
+  block.InputPort(3).Dimensions = 3;
+  block.InputPort(3).DirectFeedthrough = false;
   
   block.OutputPort(1).Dimensions = 5;
   block.OutputPort(2).Dimensions = 2;
@@ -34,6 +34,7 @@ function setup(block)
   block.SetAccelRunOnTLC(true);
   
   %% Register methods
+  block.RegBlockMethod('SetInputPortSamplingMode', @SetInpPortFrameData);
   block.RegBlockMethod('Outputs',                 @Output);  
   block.RegBlockMethod('SetInputPortSamplingMode', @SetInpPortFrameData);
   
@@ -43,6 +44,7 @@ function SetInpPortFrameData(block, idx, fd)
   
   block.InputPort(idx).SamplingMode = fd;
   block.OutputPort(1).SamplingMode  = fd;
+  block.OutputPort(2).SamplingMode  = fd;
   
 %endfunction
 
@@ -52,6 +54,10 @@ function Output(block)
     x = block.InputPort(1).data; % state
     uhat = block.InputPort(2).data; % abstract input
     xhat = block.InputPort(3).data; % abstract state
+    
+    if(norm(x - zeros(5,1)) < 0.1)
+        x = [0; 15; 0; 0; 0];
+    end
     
     % define the error manifold, get the error
     P_1 = [eye(3); zeros(2,3)];
@@ -69,7 +75,6 @@ function Output(block)
     xhat_3 = xhat(3);
     uhat_1 = uhat(1);
     % uhat_2 = uhat(2);
-    % uhat_3 = uhat(3);
     
     k1 = 2.127845954574875e-05*err_1^3*err_3 - 2.503955761696465*err_1^3*uhat_1 ...
   + 0.9568616648071756*err_1^3*xhat_3 - 0.0001853516770973126*err_1^2 ...
