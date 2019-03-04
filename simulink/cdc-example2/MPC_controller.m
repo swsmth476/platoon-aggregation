@@ -55,6 +55,13 @@ function Output(block)
     % obstacles
     xc = [20; 10];
     radius = 5;
+%     obs = cell(2,1);
+%     A1 = [eye(2); -eye(2)];
+%     b1 = [25; 50; 0; -25];
+%     A2 = [eye(2); -eye(2)];
+%     b2 = [45; 15; -15; 0];
+%     obs{1} = Polyhedron('A', A1, 'b', b1);
+%     obs{2} = Polyhedron('A', A2, 'b', b2);
     
     %%% DECISION VARIABLES %%%
     T = 30; % time horizon
@@ -77,10 +84,10 @@ function Output(block)
     hxf = hx;
     % input constraints
     Hu = [eye(2); -eye(2)];
-    hu = [15; 2*pi/10; 0; 2*pi/10];
+    hu = [15; 2*pi/5; 0; 2*pi/5];
     % input rate constraints
     Hr = [eye(2); -eye(2)];
-    hr = [15/50; 2*pi/25; 15/50; 2*pi/25];
+    hr = [15/20; 2*pi/10; 15/20; 2*pi/10];
     % cost weights
     Q = (1e-4)*eye(3,3);
     q = zeros(3,1);
@@ -89,7 +96,7 @@ function Output(block)
     % final state cost
     x_des = [50; 0; 0];
     Qf = (1e-4)*eye(3,3);
-    qf = zeros(3,1);
+    qf = -x_des;
     % input rate penalty
     alpha = 1e-4;
     
@@ -118,9 +125,21 @@ function Output(block)
         % constraints = [constraints, max(Hx*x{i} - hx) - slack <= 0]; % add slack variable
         constraints = [constraints, Hu*u{i} <= hu];
         % obstacle avoidence constraints
+%         for j = 1:length(obs)
+%             % A*x <= b representation of obstacles
+%             A = obs{j}.A;
+%             b = obs{j}.b;
+%             % assuming each obstacle has 4 sides
+%             constraints = [constraints, ( A(1,:)*x{i}(1:2) >= b(1,:) ...
+%                                        | A(2,:)*x{i}(1:2) >= b(2,:) ...
+%                                        | A(3,:)*x{i}(1:2) >= b(3,:) ...
+%                                        | A(4,:)*x{i}(1:2) >= b(4,:) ) ];
+%         end
         constraints = [constraints, (x{i+1}(1:2) - xc)'*(x{i+1}(1:2) - xc) >= (radius-slack)^2];
         constraints = [constraints, slack >= 0, 2 >= slack];
     end
+    % constraints = [constraints, Hxf*x{T+1} <= hxf];
+%     obj_fun = obj_fun + (1/2)*x{T+1}'*Qf*x{T+1} + qf'*x{T+1};
     obj_fun = obj_fun + (1/2)*(x{T+1}-x_des)'*Qf*(x{T+1}-x_des) + slack^2;
     
     %%% CALL SOLVER %%%
@@ -132,7 +151,7 @@ function Output(block)
     end
     
     % implement optimal control input on system
-    u_opt = value(u{1}); 
+    u_opt = value(u{1});
     block.OutputPort(1).Data = u_opt;
-
+    
 %endfunction
