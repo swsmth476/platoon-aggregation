@@ -6,7 +6,7 @@ function MPC_controller(block)
 
 function setup(block)
   %% Register number of input and output ports
-  block.NumInputPorts  = 2;
+  block.NumInputPorts  = 3;
   block.NumOutputPorts = 1;
 
   %% Setup functional port properties to dynamically
@@ -18,6 +18,8 @@ function setup(block)
   block.InputPort(1).DirectFeedthrough = false;
   block.InputPort(2).Dimensions = 2;
   block.InputPort(2).DirectFeedthrough = false;
+  block.InputPort(3).Dimensions = 1;
+  block.InputPort(3).DirectFeedthrough = false;
   
   block.OutputPort(1).Dimensions = 2;
   
@@ -48,6 +50,7 @@ function Output(block)
     %%% BLOCK INPUTS %%%
     x1 = block.InputPort(1).data; % initial state
     u0 = block.InputPort(2).data; % initial input
+    current_time = block.InputPort(3).data % simulation time
     
     % problem parameters
     % samping time
@@ -77,10 +80,10 @@ function Output(block)
     hxf = hx;
     % input constraints
     Hu = [eye(2); -eye(2)];
-    hu = [15; 2*pi/5; 0; 2*pi/5];
+    hu = [15; 2*pi/250; 0; 2*pi/250];
     % input rate constraints
     Hr = [eye(2); -eye(2)];
-    hr = [15/20; 2*pi/10; 15/20; 2*pi/10];
+    hr = [15/100; 2*pi/500; 15/100; 2*pi/500];
     % cost weights
     Q = (1e-4)*eye(3,3);
     q = zeros(3,1);
@@ -131,8 +134,13 @@ function Output(block)
         disp('Some issue occurred with ipopt');
     end
     
-    % implement optimal control input on system
-    u_opt = value(u{1});
+    % implement optimal control input on system (wait for 0.5s first)
+    if(current_time < 0.5)
+        u_opt = zeros(2,1);
+    else
+        u_opt = value(u{1});
+    end
+    
     block.OutputPort(1).Data = u_opt;
 
 %endfunction
