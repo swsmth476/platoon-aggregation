@@ -80,7 +80,7 @@ function Output(block)
     hu = [15; 2*pi/10; 0; 2*pi/10];
     % input rate constraints
     Hr = [eye(2); -eye(2)];
-    hr = [15/100; 2*pi/100; 15/100; 2*pi/100];
+    hr = [15/50; 2*pi/25; 15/50; 2*pi/25];
     % cost weights
     Q = (1e-4)*eye(3,3);
     q = zeros(3,1);
@@ -89,7 +89,7 @@ function Output(block)
     % final state cost
     x_des = [50; 0; 0];
     Qf = (1e-4)*eye(3,3);
-    qf = -x_des;
+    qf = zeros(3,1);
     % input rate penalty
     alpha = 1e-4;
     
