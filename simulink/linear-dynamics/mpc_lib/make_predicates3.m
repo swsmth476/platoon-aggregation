@@ -28,10 +28,10 @@ function [num_pred, mu_a, mu_b, num_phi, num_psi] = make_predicates3
 num_pred = 11;
 
 % STL formula values %
-headway_nominal = 60;
-headway_bound = 10; % safety range
-headway_des = 60;
-headway_delta = 5; % target range
+headway_nominal = 24;
+headway_bound = 4; % safety range
+headway_des = 24;
+headway_delta = 2; % target range
 vel_nominal = 28;
 vel_bound = 4; % safety range
 % vel_des = 28;
@@ -46,7 +46,7 @@ vel_safe_lb = vel_nominal - vel_bound;
 vel_safe_ub = vel_nominal + vel_bound;
 % vel_lb = vel_des - vel_delta;
 % vel_ub = vel_des + vel_delta;
-accel_safe_bd = 5; % absolute value |accel| < accel_bd
+accel_safe_bd = 4; % absolute value |accel| < accel_bd
 
 % introduce predicate variables
 % predicates are affine, of the form mu(x(i)) = a*x(i) + b %

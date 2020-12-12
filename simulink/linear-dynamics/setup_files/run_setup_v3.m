@@ -29,17 +29,20 @@ mdl.Bd = double(int(A_s, s, [0 dt])*Bc);
 mdl.Kd = double(int(A_s, s, [0 dt])*Kc);
 
 %%% manifold map %%%
-P_sub = [eye(2); eye(2); eye(2); eye(2); eye(2)];
+P_sub = [eye(2); eye(2)];
 mdl.P = blkdiag(P_sub, P_sub); % linear part
-omega_sub = [0; 0; -mdl.dh; 0; -mdl.dh; 0; -mdl.dh; 0; -mdl.dh; 0];
+omega_sub = [0; 0; -mdl.dh; 0];
 mdl.omega = [omega_sub; omega_sub]; % constant part
 
 %%% initial states %%%
+% initial distance between platoons is 22 => decrease to 12
+mdl.x0 = [58; 25; 46; 25; 24; 25; 12; 25];
+mdl.z0 = [58; 25; 24; 25];
 % initial distance between platoons is 27 => decrease to 12
 % initial velocity of the platoon is 25 => increase to 30
-mdl.x0 = [135; 25; 123; 25; 111; 25; 99; 25; 87; 25; ...
-          60; 25; 48; 25; 36; 25; 24; 25; 12; 25];
-mdl.z0 = [135; 25; 60; 25];
+% mdl.x0 = [135; 25; 123; 25; 111; 25; 99; 25; 87; 25; ...
+%           60; 25; 48; 25; 36; 25; 24; 25; 12; 25];
+% mdl.z0 = [135; 25; 60; 25];
 % mdl.x0 = [40; 28; 30; 28; 20; 28; 10; 28];
 % mdl.z0 = [40; 28; 20; 28];
 

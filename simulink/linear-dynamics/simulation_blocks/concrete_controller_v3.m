@@ -15,7 +15,7 @@ function setup(block)
   block.SetPreCompInpPortInfoToDynamic;
   block.SetPreCompOutPortInfoToDynamic;
   
-  block.InputPort(1).Dimensions        = 20;
+  block.InputPort(1).Dimensions        = 8;
   block.InputPort(1).DirectFeedthrough = false;
   
   block.InputPort(2).Dimensions        = 4;
@@ -24,7 +24,7 @@ function setup(block)
   block.InputPort(3).Dimensions        = 2;
   block.InputPort(3).DirectFeedthrough = false;
   
-  block.OutputPort(1).Dimensions       = 20; 
+  block.OutputPort(1).Dimensions       = 8; 
   block.OutputPort(2).Dimensions       = 2;
   
   %% Set block sample time to inherited
@@ -52,7 +52,7 @@ function SetInpPortFrameData(block, idx, fd)
 %endfunction
 
 function InitConditions(block) 
-  block.OutputPort(1).Data = zeros(20,1);
+  block.OutputPort(1).Data = zeros(8,1);
   block.OutputPort(2).Data = [0; 0];
   
 %endfunction
