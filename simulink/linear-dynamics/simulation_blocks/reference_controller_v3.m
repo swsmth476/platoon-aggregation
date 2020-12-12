@@ -122,7 +122,7 @@ function Output(block)
   
   % event trigger time (when the platoon is told to accelerate / increase
   % headway)
-  event_trigger = 0; % (begin at 2s)
+  event_trigger = 0; % (begin at 0s)
   
   if(time_step < mdl.mpc_H)
       

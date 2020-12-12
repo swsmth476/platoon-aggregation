@@ -46,7 +46,7 @@ vel_safe_lb = vel_nominal - vel_bound;
 vel_safe_ub = vel_nominal + vel_bound;
 % vel_lb = vel_des - vel_delta;
 % vel_ub = vel_des + vel_delta;
-accel_safe_bd = 4; % absolute value |accel| < accel_bd
+accel_safe_bd = 8; % absolute value |accel| < accel_bd
 
 % introduce predicate variables
 % predicates are affine, of the form mu(x(i)) = a*x(i) + b %
