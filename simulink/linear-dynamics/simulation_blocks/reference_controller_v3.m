@@ -86,19 +86,35 @@ function Output(block)
   theta = [Kd; zeros(2,1)];
   
   % choose augmented system state/input costs
+  % want to minimize (xa - xb - dist_des)^2
+  % Qf = zeros(6);
+  Qf = [1  0 -1  0  0  0;
+       0  0  0  0  0  0;
+       -1  0  1  0  0  0;
+       0  0  0  0  0  0;
+       0  0  0  0  0  0;
+       0  0  0  0  0  0];
+  dist_des = 24; % desired final distance between the platoons
+  % qf = zeros(6,1);
+  qf = [-dist_des; 0; dist_des; 0; 0; 0];
+  % add tuning gain here
+  gain2 = 0.65;
+  Qf = gain2 * Qf;
+  qf = gain2 * qf;
   % Q = zeros(6);
   Q = diag([0; 0; 0; 0; 1; 1]);
-  % Qf = zeros(6);
-  Qf = zeros(6);
-  q = zeros(6,1);
-  qf = zeros(6,1);
-  R = eye(2);
+  % adding tuning gain here
+  gain = 1.0;
+  Q = gain * Q + Qf;
+  q = zeros(6,1) + qf;
+  gain3 = 0.05;
+  R = gain3 * eye(2);
   % R = zeros(2);
   r = zeros(2,1);
   
   % jerk constraints
-  j_ub = 0.5;
-  j_lb = -0.5;
+  j_ub = 1.0;
+  j_lb = -1.0;
   
   % input constraints
   Hu = [eye(2); -eye(2)];
