@@ -122,7 +122,7 @@ function Output(block)
   
   % event trigger time (when the platoon is told to accelerate / increase
   % headway)
-  event_trigger = 0; % (begin at 0s)
+  event_trigger = 30; % (begin at 0s)
   
   if(time_step < mdl.mpc_H)
       
@@ -130,7 +130,7 @@ function Output(block)
       signal = 2*(1:mdl.mpc_H > event_trigger) - 1;
       
       % initial state
-      z0 = [mdl.z0; zeros(2,1)];
+      z0 = zt; % [mdl.z0; zeros(2,1)];
       
       % transient phase of MPC
       mdl.mpc_P(time_step + 1) = 0;

@@ -56,5 +56,6 @@ mdl.mpc_H = 30;
 mdl.mpc_P = -M*ones(mdl.mpc_H,1);
 mdl.ut_old = [];
 mdl.zt = [];
+mdl.init_step = false; % to fix weird simulation initialization bug
 
 end
