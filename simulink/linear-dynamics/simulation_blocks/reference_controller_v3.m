@@ -87,7 +87,7 @@ function Output(block)
   
   % event trigger time (when the platoon is told to accelerate / increase
   % headway)
-  event_trigger = 0; % (begin at 2s)
+  event_trigger = 20; % (begin at 2s)
   
   % choose augmented system state/input costs
   % want to minimize (xa - xb - dist_des)^2
@@ -197,60 +197,3 @@ function Output(block)
   block.OutputPort(1).Data = v + delta_v;
 
 %endfunction
-
-%   % input constraints
-%   Hu = [eye(2); -eye(2)];
-%   hu = [j_ub; j_ub; -j_lb; -j_lb];
-%   
-%   if(time_step < mdl.mpc_H)
-%       
-%       % create acceleration signal
-%       signal = 2*(1:mdl.mpc_H > event_trigger) - 1;
-%       
-%       % initial state
-%       z0 = zt; % [mdl.z0; zeros(2,1)];
-%       
-%       % transient phase of MPC
-%       mdl.mpc_P(time_step + 1) = 0;
-%       [v_opt, ~] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
-%           Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
-%       v_idx = (time_step*2 + 1):(time_step*2 + 2);
-%       delta_v = v_opt(v_idx);
-%       
-%       % store old inputs for next iteration
-%       % conditionals necessary because simulink repeats some initial time steps
-%       if(size(mdl.ut_old,2) < time_step + 1) % save input if not stored yet
-%           mdl.ut_old = [mdl.ut_old, delta_v];
-%       else % if this time step was already saved, replace the old one
-%           mdl.ut_old(:, time_step + 1) = delta_v;
-%       end
-%       
-%       % if at the end of transiet phase, save MPC starting save
-%       if(size(mdl.ut_old,2) == mdl.mpc_H)
-%           mdl.zt = z0;
-%       end
-% 
-%   else
-%       
-%       % create acceleration signal
-%       signal = 2*((time_step - mdl.mpc_H + 1):(time_step) > event_trigger) - 1;
-%       
-%       % initial state
-%       z0 = mdl.zt;
-%       
-%       % stationary phase of MPC
-%       mdl.mpc_P = zeros(mdl.mpc_H,1);
-%       [v_opt, zt_next] = open_loop_star(A,B,theta,z0,mdl.mpc_H,Q,Qf,q,qf,R,r, ...
-%           Hu,hu,mdl.mpc_P,mdl.ut_old,signal);
-%       v_idx = (mdl.mpc_H*2 + 1):(mdl.mpc_H*2 + 2);
-%       delta_v = v_opt(v_idx);
-% 
-%       % store old inputs for next iteration
-%       old_idx = 3:(mdl.mpc_H*2 + 2);
-%       mdl.ut_old = v_opt(old_idx);
-%       mdl.ut_old = reshape(mdl.ut_old, 2, mdl.mpc_H);
-%       
-%       % save starting state
-%       mdl.zt = zt_next;
-%       
-%   end
