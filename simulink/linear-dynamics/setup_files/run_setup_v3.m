@@ -35,9 +35,9 @@ omega_sub = [0; 0; -mdl.dh; 0];
 mdl.omega = [omega_sub; omega_sub]; % constant part
 
 %%% initial states %%%
-% initial distance between platoons is 22 => decrease to 12
-mdl.x0 = [58; 28; 46; 28; 24; 28; 12; 28];
-mdl.z0 = [58; 28; 24; 28];
+% initial distance between platoons is 27 => decrease to 12
+mdl.x0 = [63; 28; 51; 28; 24; 28; 12; 28];
+mdl.z0 = [63; 28; 24; 28];
 % initial distance between platoons is 27 => decrease to 12
 % initial velocity of the platoon is 25 => increase to 30
 % mdl.x0 = [135; 25; 123; 25; 111; 25; 99; 25; 87; 25; ...
