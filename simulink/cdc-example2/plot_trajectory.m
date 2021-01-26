@@ -5,12 +5,14 @@ figure('Renderer', 'painters', 'Position', [10 10 900 375]);
 num_obs = 3;
 xc = cell(num_obs,1);
 radius = cell(num_obs,1);
-xc{1} = [40; 7]; % right obstacle
-radius{1} = 5;
+xc{1} = [40; -2]; % right obstacle
+radius{1} = 3;
 xc{2} = [10; 9]; % left obstacle
-radius{2} = 5;
+radius{2} = 3;
 xc{3} = [25; 5]; % center obstacle
-radius{3} = 5;
+radius{3} = 3;
+% slack variable bound
+slack = 2;
 
 % starting point, goal point
 xstart = [0; 15; 0];
@@ -23,11 +25,19 @@ x = cell(num_obs, 1);
 y = cell(num_obs, 1);
 for i = 1:num_obs
     xc_3D{i} = [xc{i}; 0];
+    h{i} = ellipse(radius{i} + slack, radius{i} + slack, 0, xc{i}(1), xc{i}(2));
+    x{i} = get(h{i}, 'Xdata');
+    y{i} = get(h{i}, 'Ydata');
+    hold on;
+    patch(x{i}, y{i}, 'y', 'FaceColor', 'yellow');
+end
+for i = 1:num_obs
+    xc_3D{i} = [xc{i}; 0];
     h{i} = ellipse(radius{i}, radius{i}, 0, xc{i}(1), xc{i}(2));
     x{i} = get(h{i}, 'Xdata');
     y{i} = get(h{i}, 'Ydata');
     hold on;
-    patch(x{i}, y{i}, 'y');
+    patch(x{i}, y{i}, 'y', 'FaceColor', 'red');
 end
 
 % plot start / end points, trajectory

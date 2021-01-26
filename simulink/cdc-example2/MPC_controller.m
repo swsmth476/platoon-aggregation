@@ -58,11 +58,11 @@ function Output(block)
     xc = cell(num_obs,1);
     radius = cell(num_obs,1);
     xc{1} = [40; 7]; % right obstacle
-    radius{1} = 5;
+    radius{1} = 3;
     xc{2} = [10; 9]; % left obstacle
-    radius{2} = 5;
+    radius{2} = 3;
     xc{3} = [25; 5]; % center obstacle
-    radius{3} = 5;
+    radius{3} = 3;
     
     %%% DECISION VARIABLES %%%
     T = 30; % time horizon
@@ -118,7 +118,7 @@ function Output(block)
         constraints = [constraints, Hu*u{i} <= hu];
         for j = 1:num_obs
             % obstacle avoidence constraints (use slack variable)
-            constraints = [constraints, (x{i+1}(1:2) - xc{j})'*(x{i+1}(1:2) - xc{j}) >= (radius{j} - slack)^2];
+            constraints = [constraints, (x{i+1}(1:2) - xc{j})'*(x{i+1}(1:2) - xc{j}) >= (radius{j} + 2 - slack)^2];
             constraints = [constraints, slack >= 0, 2 >= slack];
         end
     end
