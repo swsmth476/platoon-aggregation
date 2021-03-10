@@ -15,8 +15,16 @@ radius{3} = 3;
 slack = 2;
 
 % starting point, goal point
-xstart = [0; 15; 0];
-xfinish = [50; 0; 0];
+ell = 2.5; % half-width of box enclosing desired final state
+x_init = [0; 15; 0];
+x_des = [50; 0; 0] + [ell; -ell; 0];
+Hf = [eye(2), zeros(2,1); -eye(2), zeros(2,1); zeros(2,2), [1; -1]];
+hf = [x_des(1) + ell;
+      x_des(2) + ell;
+      -(x_des(1) - ell);
+      -(x_des(2) - ell);
+      0;
+      0];
 
 % plot obstacles
 xc_3D = cell(num_obs, 1);
@@ -40,10 +48,11 @@ for i = 1:num_obs
     patch(x{i}, y{i}, 'y', 'FaceColor', 'red');
 end
 
-% plot start / end points, trajectory
-plot(xstart(1), xstart(2), 'x', 'LineWidth', 3.5);
-plot(xfinish(1), xfinish(2), 'x', 'LineWidth', 3.5);
+% plot trajectory & goalset
+plot(x_init(1), x_init(2), 'x', 'LineWidth', 3.5);
+plot(goalSet);
 plot(xhat(:,1), xhat(:,2), 'o');
+goalSet = Polyhedron(Hf, hf);
 
 % adjust width & height of plot, add title & labels
 xlim([-5, 55]);

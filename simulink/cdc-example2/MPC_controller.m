@@ -97,8 +97,15 @@ function Output(block)
     R = (1e-4)*eye(2,2);
     r = zeros(2,1);
     % final state cost
-    x_des = [50; 0; 0];
-    Qf = (1e-4)*eye(3,3);
+    % Qf = (1e-4)*eye(3,3);
+    % final state target set
+    ell = 2.5; % half-width of box enclosing desired final state
+    x_des = [50; 0; 0] + [ell; -ell; 0];
+    Hf = [eye(2), zeros(2,1); -eye(2), zeros(2,1)];
+    hf = [x_des(1) + ell;
+          x_des(2) + ell;
+          -(x_des(1) - ell);
+          -(x_des(2) - ell)];
     % input rate penalty
     alpha = 1e-4;
     
@@ -129,7 +136,8 @@ function Output(block)
             constraints = [constraints, slack >= 0, 2 >= slack];
         end
     end
-    obj_fun = obj_fun + (1/2)*(x{T+1}-x_des)'*Qf*(x{T+1}-x_des) + slack^2;
+    % obj_fun = obj_fun + (1/2)*(x{T+1}-x_des)'*Qf*(x{T+1}-x_des) + slack^2;
+    obj_fun = obj_fun + ones(1, length(hf))*max(Hf*x{T+1} - hf, 0) + 100*slack^2;
     
     %%% CALL SOLVER %%%
     diagnostics = optimize(constraints, obj_fun, sdpsettings('solver', 'ipopt'));
