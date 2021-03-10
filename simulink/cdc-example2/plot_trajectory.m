@@ -5,7 +5,7 @@ figure('Renderer', 'painters', 'Position', [10 10 900 375]);
 num_obs = 3;
 xc = cell(num_obs,1);
 radius = cell(num_obs,1);
-xc{1} = [40; -2]; % right obstacle
+xc{1} = [40; 7]; % right obstacle
 radius{1} = 3;
 xc{2} = [10; 9]; % left obstacle
 radius{2} = 3;
