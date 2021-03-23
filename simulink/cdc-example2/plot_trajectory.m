@@ -50,9 +50,9 @@ end
 
 % plot trajectory & goalset
 plot(x_init(1), x_init(2), 'x', 'LineWidth', 3.5);
-plot(goalSet);
-plot(xhat(:,1), xhat(:,2), 'o');
 goalSet = Polyhedron(Hf, hf);
+plot(goalSet);
+plot(xhat_t(:,1), xhat_t(:,2), 'o');
 
 % adjust width & height of plot, add title & labels
 xlim([-5, 55]);

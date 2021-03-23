@@ -22,7 +22,7 @@ con.C_af = -6.1595e4; % front tire cornering stiffness (N/rad)
 con.C_ar = -5.2095e4; % rear tire cornering stiffness (N/rad)
 
 % compute tire slip angle for the front and rear wheels
-alpha_f = (x(6) + con.l_f * x(4)) * inverse_approx(x(5));
+alpha_f = (x(6) + con.l_f * x(4)) * inverse_approx(x(5)) - u(1);
 alpha_r = (x(6) - con.l_r * x(4)) * inverse_approx(x(5));
 
 % compute lateral tire force at front and rear wheels
@@ -40,6 +40,7 @@ dx(6) = -x(4) * x(5) + 2 / con.m * (F_cf + F_cr);
 
 function y = inverse_approx(x)
     y = -0.1201 * x + 0.7082;
+    % y = 1 / x;
 end
 
 end

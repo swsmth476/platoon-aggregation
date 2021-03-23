@@ -50,10 +50,10 @@ function Output(block)
     u0 = block.InputPort(2).data; % initial input
     
     % check if the simulation is initializing
-    % if so, set initial input to u0 = [2; 0]
+    % if so, set initial input to u0 = [0; 2]
     % this way, the input rate constraint is not violated at the start
-    if(u0(1) == 0)
-        u0(1) = 2;
+    if(u0(2) == 0)
+        u0(2) = 2;
     end
     
     % problem parameters
@@ -87,10 +87,10 @@ function Output(block)
     %%% CONSTRAINTS & COST WEIGHTS %%%
     % input constraints
     Hu = [eye(2); -eye(2)];
-    hu = [4; pi / 8; -2; pi / 8];
+    hu = [pi / 8; 4; pi / 8; -2];
     % input rate constraints
     Hr = [eye(2); -eye(2)];
-    hr = [0.1 * 0.75; 0.1 * pi / 5; 0.1 * 0.75; 0.1 * pi / 5];
+    hr = [0.1 * pi / 5; 0.1 * 0.75; 0.1 * pi / 5; 0.1 * 0.75];
     % cost weights
     Q = (1e-4)*eye(3,3);
     q = zeros(3,1);
