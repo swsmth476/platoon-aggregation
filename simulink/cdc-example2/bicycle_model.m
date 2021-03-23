@@ -17,13 +17,13 @@ function setup(block)
   block.InputPort(1).Dimensions        = 2;
   block.InputPort(1).DirectFeedthrough = false;
   
-  block.OutputPort(1).Dimensions       = 5;
+  block.OutputPort(1).Dimensions       = 6;
   
   %% Set block sample time to continuous
   block.SampleTimes = [0 0];
   
   %% Setup Dwork
-  block.NumContStates = 5;
+  block.NumContStates = 6;
 
   %% Set the block simStateCompliance to default (i.e., same as a built-in block)
   block.SimStateCompliance = 'DefaultSimState';
@@ -38,7 +38,7 @@ function setup(block)
 function InitConditions(block)
 
     % initialize leader state
-    block.ContStates.Data = [0; 15; 0; 0; 0];
+    block.ContStates.Data = [0; 15; 0; 0; 2; 0];
 
 %endfunction
 
@@ -55,6 +55,6 @@ function Derivative(block)
     u = block.InputPort(1).Data;
 
     % compute time derivative
-    block.Derivatives.Data = f_bicycle(x, u);
+    block.Derivatives.Data = f_bicycle_v2(x, u);
 
 %endfunction

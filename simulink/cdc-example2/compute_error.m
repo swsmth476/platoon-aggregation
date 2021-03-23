@@ -1,4 +1,4 @@
-function concrete_controller(block)
+function compute_error(block)
 
   setup(block);
   
@@ -7,22 +7,21 @@ function concrete_controller(block)
 function setup(block)
   %% Register number of input and output ports
   block.NumInputPorts  = 3;
-  block.NumOutputPorts = 2;
+  block.NumOutputPorts = 1;
 
   %% Setup functional port properties to dynamically
   %% inherited.
   block.SetPreCompInpPortInfoToDynamic;
   block.SetPreCompOutPortInfoToDynamic;
  
-  block.InputPort(1).Dimensions = 5;
+  block.InputPort(1).Dimensions = 6;
   block.InputPort(1).DirectFeedthrough = false;
   block.InputPort(2).Dimensions = 2;
   block.InputPort(2).DirectFeedthrough = false;
   block.InputPort(3).Dimensions = 3;
   block.InputPort(3).DirectFeedthrough = false;
   
-  block.OutputPort(1).Dimensions = 5;
-  block.OutputPort(2).Dimensions = 2;
+  block.OutputPort(1).Dimensions = 6;
   
   %% Set block sample time to inherited
   block.SampleTimes = [-1 0];
@@ -44,7 +43,6 @@ function SetInpPortFrameData(block, idx, fd)
   
   block.InputPort(idx).SamplingMode = fd;
   block.OutputPort(1).SamplingMode  = fd;
-  block.OutputPort(2).SamplingMode  = fd;
   
 %endfunction
 
@@ -55,19 +53,19 @@ function Output(block)
     uhat = block.InputPort(2).data; % abstract input
     xhat = block.InputPort(3).data; % abstract state
     
-    if(norm(x - zeros(5,1)) < 0.1)
-        x = [0; 15; 0; 0; 0];
+    if(norm(x - zeros(6,1)) < 0.1)
+        x = [0; 15; 0; 0; 0; 0];
     end
     
-    % define the error manifold, get the error
+    % define error manifold
     pi_val = [xhat; uhat; 0];
     
     % redefine error state as described in paper
     R = [cos(xhat(3)), -sin(xhat(3));
          sin(xhat(3)),  cos(xhat(3))];
-    phi = diag(inv(R), eye(4));
+    phi = blkdiag(inv(R), eye(4));
+    err = phi * (x - pi_val);
 
     block.OutputPort(1).Data = err;
-    block.OutputPort(2).Data = ;
 
 %endfunction
