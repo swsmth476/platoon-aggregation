@@ -9,7 +9,7 @@ xc{1} = [40; 7]; % right obstacle
 radius{1} = 3;
 xc{2} = [10; 9]; % left obstacle
 radius{2} = 3;
-xc{3} = [25; 5]; % center obstacle
+xc{3} = [25; 10]; % center obstacle
 radius{3} = 3;
 % slack variable bound
 slack = 2;
@@ -17,7 +17,7 @@ slack = 2;
 % starting point, goal point
 ell = 2.5; % half-width of box enclosing desired final state
 x_init = [0; 15; 0];
-x_des = [50; 0; 0] + [ell; -ell; 0];
+x_des = [30; 0; 0] + [ell; -ell; 0];
 Hf = [eye(2), zeros(2,1); -eye(2), zeros(2,1); zeros(2,2), [1; -1]];
 hf = [x_des(1) + ell;
       x_des(2) + ell;
