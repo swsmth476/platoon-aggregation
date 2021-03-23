@@ -39,8 +39,9 @@ dx(5) = x(4) * x(6) + u(2);
 dx(6) = -x(4) * x(5) + 2 / con.m * (F_cf + F_cr);
 
 function y = inverse_approx(x)
-    y = -0.1201 * x + 0.7082;
-    % y = 1 / x;
+    % y = -0.1201 * x + 0.7082;
+    % (simulation doesn't converge with approximation)
+    y = 1 / x;
 end
 
 end
