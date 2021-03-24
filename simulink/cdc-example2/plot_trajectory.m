@@ -1,4 +1,4 @@
-%
+% create figure
 figure('Renderer', 'painters', 'Position', [10 10 900 375]);
 
 % center and radius of obstacles
@@ -52,11 +52,13 @@ end
 plot(x_init(1), x_init(2), 'x', 'LineWidth', 3.5);
 goalSet = Polyhedron(Hf, hf);
 plot(goalSet);
-plot(xhat_t(:,1), xhat_t(:,2), 'o');
+planner = plot(xhat_t(:,1), xhat_t(:,2), 'o');
+tracker = plot(x_t(:,1), x_t(:,2), 'x');
+legend([planner, tracker],'Planner', 'Tracker');
 
 % adjust width & height of plot, add title & labels
 xlim([-5, 55]);
 xlabel('X Coordinate');
 ylim([-5, 20]);
 ylabel('Y Coordinate');
-title('3D Dubins Vehicle Path');
+title('Planner Tracker Framework: Motion Planning Example');
