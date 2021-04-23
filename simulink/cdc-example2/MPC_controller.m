@@ -60,16 +60,31 @@ function Output(block)
     % samping time
     dt = 0.2;
     % obstacles
+%     % center and radius of obstacles
+%     num_obs = 3;
+%     xc = cell(num_obs,1);
+%     radius = cell(num_obs,1);
+%     xc{1} = [40; 7]; % right obstacle
+%     radius{1} = 3;
+%     xc{2} = [10; 9]; % left obstacle
+%     radius{2} = 3;
+%     xc{3} = [25; 10]; % center obstacle
+%     radius{3} = 3;
+
     % center and radius of obstacles
-    num_obs = 3;
+    num_obs = 4;
     xc = cell(num_obs,1);
     radius = cell(num_obs,1);
-    xc{1} = [40; 7]; % right obstacle
+    xc{1} = [-5; -2.5]; % bottom left obstacle
     radius{1} = 3;
-    xc{2} = [10; 9]; % left obstacle
+    xc{2} = [10; 10]; % top left obstacle
     radius{2} = 3;
-    xc{3} = [25; 10]; % center obstacle
+    xc{3} = [27.5; 7.5]; % top right obstacle
     radius{3} = 3;
+    xc{4} = [15; -12.5]; % bottom right obstacle
+    radius{4} = 3;
+    % slack variable bound
+    slack = 1.44;
     
     %%% DECISION VARIABLES %%%
     T = 30; % time horizon
@@ -108,6 +123,8 @@ function Output(block)
           -(x_des(2) - ell)];
     % input rate penalty
     alpha = 1e-4;
+    % tracker error bound (from Galaxy's computations)
+    err_bound = 1.44;
     
     %%% SET UP PROBLEM %%%
     % obj fun
@@ -132,8 +149,8 @@ function Output(block)
         constraints = [constraints, Hu*u{i} <= hu];
         for j = 1:num_obs
             % obstacle avoidence constraints (use slack variable)
-            constraints = [constraints, (x{i+1}(1:2) - xc{j})'*(x{i+1}(1:2) - xc{j}) >= (radius{j} + 2 - slack)^2];
-            constraints = [constraints, slack >= 0, 2 >= slack];
+            constraints = [constraints, (x{i+1}(1:2) - xc{j})'*(x{i+1}(1:2) - xc{j}) >= (radius{j} + err_bound - slack)^2];
+            constraints = [constraints, slack >= 0, err_bound >= slack];
         end
     end
     % obj_fun = obj_fun + (1/2)*(x{T+1}-x_des)'*Qf*(x{T+1}-x_des) + slack^2;

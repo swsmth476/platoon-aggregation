@@ -2,17 +2,19 @@
 figure('Renderer', 'painters', 'Position', [10 10 900 375]);
 
 % center and radius of obstacles
-num_obs = 3;
+num_obs = 4;
 xc = cell(num_obs,1);
 radius = cell(num_obs,1);
-xc{1} = [40; 7]; % right obstacle
+xc{1} = [-5; -2.5]; % bottom left obstacle
 radius{1} = 3;
-xc{2} = [10; 9]; % left obstacle
+xc{2} = [10; 10]; % top left obstacle
 radius{2} = 3;
-xc{3} = [25; 10]; % center obstacle
+xc{3} = [27.5; 7.5]; % top right obstacle
 radius{3} = 3;
+xc{4} = [15; -12.5]; % bottom right obstacle
+radius{4} = 3;
 % slack variable bound
-slack = 2;
+slack = 1.44;
 
 % starting point, goal point
 ell = 2.5; % half-width of box enclosing desired final state
@@ -27,6 +29,8 @@ hf = [x_des(1) + ell;
       0];
 
 % plot obstacles
+spacing = 0.085;
+subaxis(1,2,1,'Spacing', spacing);
 xc_3D = cell(num_obs, 1);
 h = cell(num_obs, 1);
 x = cell(num_obs, 1);
@@ -37,7 +41,7 @@ for i = 1:num_obs
     x{i} = get(h{i}, 'Xdata');
     y{i} = get(h{i}, 'Ydata');
     hold on;
-    patch(x{i}, y{i}, 'y', 'FaceColor', 'yellow');
+    patch(x{i}, y{i}, 'y', 'FaceColor', [0.9290 0.6940 0.1250]);
 end
 for i = 1:num_obs
     xc_3D{i} = [xc{i}; 0];
@@ -45,20 +49,46 @@ for i = 1:num_obs
     x{i} = get(h{i}, 'Xdata');
     y{i} = get(h{i}, 'Ydata');
     hold on;
-    patch(x{i}, y{i}, 'y', 'FaceColor', 'red');
+    patch(x{i}, y{i}, 'y', 'FaceColor', [0.8500 0.3250 0.0980]);
 end
 
 % plot trajectory & goalset
-plot(x_init(1), x_init(2), 'x', 'LineWidth', 3.5);
-goalSet = Polyhedron(Hf, hf);
-plot(goalSet);
-planner = plot(xhat_t(:,1), xhat_t(:,2), 'o');
-tracker = plot(x_t(:,1), x_t(:,2), 'x');
-legend([planner, tracker],'Planner', 'Tracker');
+x_goal = [30 30 35 35];
+y_goal = [0 -5 -5 0];
+fill(x_goal,y_goal,[0.4660 0.6740 0.1880]);
+% goalSet = Polyhedron(Hf, hf);
+% plot(goalSet, 'Color', [0.4660 0.6740 0.1880]);
+hold on;
+planner = plot(xhat_t(:,1), xhat_t(:,2), '-', 'LineWidth', 1.5, 'Color', [0 0.4470 0.7410]);
+hold on;
+tracker = plot(x_t(:,1), x_t(:,2), '--', 'LineWidth', 1.5, 'Color', [0.4940 0.1840 0.5560]);
+hold on;
+plot(x_init(1), x_init(2), 'x', 'LineWidth', 3.5, 'Color', [0.6350 0.0780 0.1840]);
+legend([planner, tracker],'Planner', 'Tracker'); % ...
+        % 'Location', 'northoutside', 'Orientation', 'horizontal');
 
 % adjust width & height of plot, add title & labels
-xlim([-5, 55]);
-xlabel('X Coordinate');
-ylim([-5, 20]);
-ylabel('Y Coordinate');
-title('Planner Tracker Framework: Motion Planning Example');
+xlim([-15 40]);
+xticks([0 10 20 30 40]);
+xlabel('X Coordinate (m)');
+ylim([-20 20]);
+yticks([-20 -10 0 10 20]);
+ylabel('Y Coordinate (m)');
+grid on;
+% title('Planner Tracker Framework: Motion Planning Example');
+
+% plot error bound
+subaxis(1,2,2,'Spacing', spacing);
+plot(t_sim, vecnorm(err_t'), '-', 'LineWidth', 1.35);
+hold on;
+plot(t_sim, 1.44 .* ones(length(err_t)), '--', 'LineWidth', 1.35, ...
+        'Color', [0.9290 0.6940 0.1250]);
+
+% adjust width & height of plot, add title & labels
+xlim([0 14]);
+xticks([0 2 4 6 8 10 12 14]);
+xlabel('Time (s)');
+ylim([0 1.5]);
+yticks([0 0.5 1 1.5]);
+ylabel('Error');
+grid on;

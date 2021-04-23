@@ -53,6 +53,19 @@ function Derivative(block)
     % state & input
     x = block.ContStates.Data;
     u = block.InputPort(1).Data;
+    
+    % final state target set
+    ell = 2.5; % half-width of box enclosing desired final state
+    x_des = [30; 0; 0; 0; 0; 0] + [ell; -ell; 0; 0; 0; 0];
+    Hf = [eye(2), zeros(2,4); -eye(2), zeros(2,4)];
+    hf = [x_des(1) + ell;
+          x_des(2) + ell;
+          -(x_des(1) - ell);
+          -(x_des(2) - ell)];
+    % check if the vehicle has reached the target set
+    if(sum(Hf*x <= hf) == 4)
+        set_param(bdroot, 'SimulationCommand', 'stop');
+    end
 
     % compute time derivative
     block.Derivatives.Data = f_bicycle_v2(x, u);
