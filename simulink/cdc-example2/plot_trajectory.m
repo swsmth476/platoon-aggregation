@@ -29,8 +29,8 @@ hf = [x_des(1) + ell;
       0];
 
 % plot obstacles
-spacing = 0.085;
-subaxis(1,2,1,'Spacing', spacing);
+% spacing = 0.085;
+% subaxis(1,2,1,'Spacing', spacing);
 xc_3D = cell(num_obs, 1);
 h = cell(num_obs, 1);
 x = cell(num_obs, 1);
@@ -76,9 +76,12 @@ yticks([-20 -10 0 10 20]);
 ylabel('Y Coordinate (m)');
 grid on;
 % title('Planner Tracker Framework: Motion Planning Example');
+% make tikz file
+matlab2tikz('veh_obs_avoid_traj.tex', 'height', '7.5cm', 'width', '6.9cm');
 
 % plot error bound
-subaxis(1,2,2,'Spacing', spacing);
+% subaxis(1,2,2,'Spacing', spacing);
+figure();
 plot(t_sim, vecnorm(err_t'), '-', 'LineWidth', 1.35);
 hold on;
 plot(t_sim, 1.44 .* ones(length(err_t)), '--', 'LineWidth', 1.35, ...
@@ -92,3 +95,6 @@ ylim([0 1.5]);
 yticks([0 0.5 1 1.5]);
 ylabel('Error');
 grid on;
+
+% make tikz file
+matlab2tikz('veh_obs_avoid_err.tex', 'height', '7.5cm', 'width', '6.9cm');
