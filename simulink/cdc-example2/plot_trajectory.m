@@ -7,11 +7,11 @@ xc = cell(num_obs,1);
 radius = cell(num_obs,1);
 xc{1} = [-5; -2.5]; % bottom left obstacle
 radius{1} = 3;
-xc{2} = [10; 10]; % top left obstacle
+xc{2} = [12.5; 10]; % top left obstacle
 radius{2} = 3;
-xc{3} = [27.5; 7.5]; % top right obstacle
+xc{3} = [30; 7.5]; % top right obstacle
 radius{3} = 3;
-xc{4} = [15; -12.5]; % bottom right obstacle
+xc{4} = [15; -15]; % bottom right obstacle
 radius{4} = 3;
 % slack variable bound
 slack = 1.44;
@@ -69,7 +69,7 @@ legend([planner, tracker],'Planner', 'Tracker'); % ...
 
 % adjust width & height of plot, add title & labels
 xlim([-15 40]);
-xticks([0 10 20 30 40]);
+xticks([-10 0 10 20 30 40]);
 xlabel('X Coordinate (m)');
 ylim([-20 20]);
 yticks([-20 -10 0 10 20]);
