@@ -64,8 +64,8 @@ hold on;
 tracker = plot(x_t(:,1), x_t(:,2), '--', 'LineWidth', 1.5, 'Color', [0.4940 0.1840 0.5560]);
 hold on;
 plot(x_init(1), x_init(2), 'x', 'LineWidth', 3.5, 'Color', [0.6350 0.0780 0.1840]);
-legend([planner, tracker],'Planner', 'Tracker'); % ...
-        % 'Location', 'northoutside', 'Orientation', 'horizontal');
+legend([planner, tracker],'Planner', 'Tracker', ...
+        'Location', 'northoutside', 'Orientation', 'horizontal');
 
 % adjust width & height of plot, add title & labels
 xlim([-15 40]);
@@ -77,24 +77,29 @@ ylabel('Y Coordinate (m)');
 grid on;
 % title('Planner Tracker Framework: Motion Planning Example');
 % make tikz file
-matlab2tikz('veh_obs_avoid_traj.tex', 'height', '7.5cm', 'width', '6.9cm');
+matlab2tikz('veh_obs_avoid_traj.tex', 'height', '5.5cm', 'width', '6.9cm');
+
+% values taken from the paper
+max_err_norm = norm([1.07; 1.44; 1.05]);
 
 % plot error bound
 % subaxis(1,2,2,'Spacing', spacing);
 figure();
-plot(t_sim, vecnorm(err_t'), '-', 'LineWidth', 1.35);
+plot(t_sim, vecnorm(err_t')', '-', 'LineWidth', 1.35);
 hold on;
-plot(t_sim, 1.44 .* ones(length(err_t)), '--', 'LineWidth', 1.35, ...
+plot(t_sim, max_err_norm .* ones(length(err_t)), '--', 'LineWidth', 1.35, ...
         'Color', [0.9290 0.6940 0.1250]);
+legend('$\|e(t)\|$', 'Error Bound', 'interpreter', 'latex', ...
+        'Location', 'northoutside', 'Orientation', 'horizontal');
 
 % adjust width & height of plot, add title & labels
 xlim([0 14]);
 xticks([0 2 4 6 8 10 12 14]);
 xlabel('Time (s)');
-ylim([0 1.5]);
-yticks([0 0.5 1 1.5]);
-ylabel('Error');
+ylim([0 2.5]);
+yticks([0 1 2]);
+% ylabel('$\|e(t)\|$','interpreter','latex');
 grid on;
 
 % make tikz file
-matlab2tikz('veh_obs_avoid_err.tex', 'height', '7.5cm', 'width', '6.9cm');
+matlab2tikz('veh_obs_avoid_err.tex', 'height', '5.5cm', 'width', '6.9cm');
